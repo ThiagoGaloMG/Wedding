@@ -1,3 +1,4 @@
+# Lembre-se de criar o arquivo requirements.txt para que esta linha funcione!
 import streamlit as st
 import datetime
 from streamlit_autorefresh import st_autorefresh
@@ -181,7 +182,7 @@ for phase, tasks in checklist_data.items():
                 st.info(task['text'])
             else:
                 st.session_state.tasks_status[task['id']] = st.checkbox(
-                    task['text'], 
+                    task['text'],
                     value=st.session_state.tasks_status.get(task['id'], False),
                     key=task['id']
                 )
