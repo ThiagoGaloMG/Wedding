@@ -15,7 +15,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* Importando as fontes do Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Edwardian+Script+ITC&family=Inter:wght@400;500;700&display=swap');
 
 body {
     background-color: #f0f2f6;
@@ -28,12 +28,12 @@ body {
 /* --- ESTILOS DO CABEÇALHO --- */
 
 .wedding-names {
-    font-family: 'Great Vibes', cursive; /* Nova fonte elegante */
-    font-size: 5rem; /* Tamanho maior para destaque */
+    font-family: 'Edwardian Script ITC', cursive; /* Nova fonte elegante e sofisticada */
+    font-size: 6rem; /* Ajuste no tamanho para a nova fonte */
     font-weight: 400;
     text-align: center;
     color: #c2185b; /* Um tom de rosa mais escuro e sofisticado */
-    margin-bottom: -10px; /* Ajuste para aproximar do texto abaixo */
+    margin-bottom: -15px; /* Ajuste para aproximar do texto abaixo */
 }
 
 .wedding-date {
@@ -135,7 +135,7 @@ checklist_data = {
         {'id': 'prova-final-trajes', 'text': 'Prova Final do Vestido e Terno.'},
         {'id': 'definir-leituras-musicas', 'text': 'Definir com o Padre as leituras e músicas da cerimônia.'},
         {'id': 'ensaio-igreja', 'text': 'Agendar e realizar ensaio na igreja com pais e padrinhos (se necessário).'},
-        {'id': 'prova-cabelo-maquiagem', 'text': 'Fazer teste final de cabelo e maquiagem.'},
+        {'id': 'prova-cabelo-maquear', 'text': 'Fazer teste final de cabelo e maquiagem.'},
     ],
     "Na Semana do Casamento": [
         {'id': 'buscar-trajes', 'text': 'Buscar o Vestido e o Terno.'},
