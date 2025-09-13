@@ -14,24 +14,37 @@ st.set_page_config(
 # --- CSS Customizado para um Visual Elegante ---
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;700&display=swap');
+/* Importando as fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;700&display=swap');
 
 body {
     background-color: #f0f2f6;
-}
-
-h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
 }
 
 .stApp {
     font-family: 'Inter', sans-serif;
 }
 
-.main-title {
+/* --- ESTILOS DO CABEÇALHO --- */
+
+.wedding-names {
+    font-family: 'Great Vibes', cursive; /* Nova fonte elegante */
+    font-size: 5rem; /* Tamanho maior para destaque */
+    font-weight: 400;
     text-align: center;
-    color: #333;
+    color: #c2185b; /* Um tom de rosa mais escuro e sofisticado */
+    margin-bottom: -10px; /* Ajuste para aproximar do texto abaixo */
 }
+
+.wedding-date {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+    letter-spacing: 1px; /* Espaçamento sutil entre as letras */
+}
+
+/* --- DEMAIS ESTILOS --- */
 
 .countdown-container {
     display: flex;
@@ -53,7 +66,7 @@ h1, h2, h3 {
 .countdown-number {
     font-size: 3rem;
     font-weight: bold;
-    color: #d81b60; /* Um tom de rosa */
+    color: #d81b60;
 }
 
 .countdown-label {
@@ -150,8 +163,8 @@ if 'tasks_status' not in st.session_state:
     st.session_state.tasks_status = {task['id']: False for phase in checklist_data.values() for task in phase if not task.get('is_note')}
 
 # --- Cabeçalho ---
-st.markdown('<h1 class="main-title">Daniela & Thiago</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #555;">Nosso caminho até 02 de Maio de 2026</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="wedding-names">Daniela & Thiago</h1>', unsafe_allow_html=True)
+st.markdown('<p class="wedding-date">Nosso caminho até 02 de Maio de 2026</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 
@@ -168,8 +181,6 @@ st.markdown(f"<p style='text-align: right; color: #555;'>{completed_tasks} de {t
 # --- Contagem Regressiva ---
 st.subheader("Contagem Regressiva para o Grande Dia")
 wedding_date = datetime.datetime(2026, 5, 2, 16, 0, 0)
-
-# Usamos st.empty para criar um container que pode ser atualizado dinamicamente
 countdown_placeholder = st.empty()
 
 # --- Layout do Checklist ---
@@ -187,8 +198,7 @@ for phase, tasks in checklist_data.items():
                     key=task['id']
                 )
 
-# --- Lógica da Contagem Regressiva (Corrigida) ---
-# Roda a cada segundo para atualizar o contador sem usar 'while True'
+# --- Lógica da Contagem Regressiva ---
 st_autorefresh(interval=1000, key="countdownrefresh")
 
 now = datetime.datetime.now()
