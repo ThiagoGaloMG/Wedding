@@ -89,30 +89,32 @@ body {
 """, unsafe_allow_html=True)
 
 
-# --- Dados do Checklist (ATUALIZADOS) ---
+# --- Dados do Checklist (ATUALIZADOS COM DATAS ESPECÍFICAS) ---
 checklist_data = {
-    "Fase 1: 8 a 7 Meses Antes (Set/25 a Out/25) - Planejamento Inicial": [
+    "Fase 1: 12 a 10 Meses Antes (Set/25 a Nov/25) - Planejamento Inicial": [
         {'id': 'definir-orcamento', 'text': 'Definir o Orçamento Geral do Casamento.'},
         {'id': 'lista-convidados-preliminar', 'text': 'Criar a Lista Preliminar de Convidados.'},
         {'id': 'escolher-padrinhos', 'text': 'Convidar Padrinhos e Madrinhas (máx. 3 casais por noivo, católicos e casados na igreja).'},
-        {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar a data religiosa (02/05/2026).'},
+        {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar a data religiosa (12/09/2026).'},
         {'id': 'ponto-atencao-padre', 'text': '⚠️ Agendar conversa com o Padre Carlos para tirar dúvidas sobre a viuvez e o processo religioso.', 'is_note': True},
         {'id': 'agendar-curso-noivos', 'text': 'Pesquisar e se inscrever no Curso de Noivos (fazer em outra paróquia).'},
         {'id': 'confirmar-salao', 'text': 'Confirmar a reserva do salão anexo da igreja para a recepção.'},
-        {'id': 'iniciar-docs', 'text': 'Começar a solicitar os documentos com calma (Batistérios atualizados, etc.).'},
+        {'id': 'definir-lua-de-mel', 'text': 'Lua de Mel: Definir o Destino (Nacional).'},
     ],
-    "Fase 2: 6 a 5 Meses Antes (Nov/25 a Dez/25) - Fornecedores e Viagem": [
+    "Fase 2: 9 a 7 Meses Antes (Dez/25 a Fev/26) - Fornecedores Principais": [
         {'id': 'foto-video', 'text': 'Conversar e fechar com a amiga fotógrafa (repassar regras da igreja).'},
         {'id': 'musica-cerimonia', 'text': 'Conversar e fechar com os amigos músicos (repertório apenas religioso).'},
         {'id': 'decoracao', 'text': 'Contratar florista/decoração (repassar regras: 4 arranjos, sem arcos, etc.).'},
         {'id': 'bolo-doces', 'text': 'Pesquisar e agendar degustações de bolo e doces.'},
-        {'id': 'definir-lua-de-mel', 'text': 'Lua de Mel: Definir o Destino (Nacional).'},
         {'id': 'reservar-lua-de-mel', 'text': 'Lua de Mel: Reservar Passagens e Hotéis para garantir o preço.'},
+        {'id': 'pesquisar-vestido-noiva', 'text': 'Vestido da Noiva: Iniciar pesquisa e provas (lembrar regras da paróquia).'},
+        {'id': 'pesquisar-traje-noivo', 'text': 'Traje do Noivo: Iniciar pesquisa.'},
+        {'id': 'pesquisar-dia-noiva', 'text': 'Pesquisar profissional para o Dia da Noiva em casa.'},
     ],
-    "Fase 3: 4 a 3 Meses Antes (Jan/26 a Fev/26) - Trajes, Convites e Detalhes": [
-        {'id': 'vestido-noiva', 'text': 'Vestido da Noiva: Iniciar pesquisa e provas (lembrar regras da paróquia).'},
-        {'id': 'traje-noivo', 'text': 'Traje do Noivo: Iniciar pesquisa.'},
-        {'id': 'dia-noiva-profissional', 'text': 'Pesquisar e contratar profissional para o Dia da Noiva em casa.'},
+    "Fase 3: 6 a 4 Meses Antes (Mar/26 a Mai/26) - Trajes, Convites e Detalhes": [
+        {'id': 'contratar-vestido-noiva', 'text': 'Contratar/Comprar o Vestido da Noiva.'},
+        {'id': 'contratar-traje-noivo', 'text': 'Contratar/Comprar o Traje do Noivo.'},
+        {'id': 'contratar-dia-noiva-profissional', 'text': 'Contratar profissional para o Dia da Noiva em casa.'},
         {'id': 'criar-site', 'text': 'Criar e configurar o Site dos Noivos (Lejour).'},
         {'id': 'design-convites', 'text': 'Definir o design dos convites.'},
         {'id': 'lista-convidados-final', 'text': 'Finalizar a Lista de Convidados.'},
@@ -120,17 +122,18 @@ checklist_data = {
         {'id': 'encomendar-tercos-ns', 'text': 'Encomendar os terços de Nossa Senhora das Lágrimas.'},
         {'id': 'material-tercos-proprios', 'text': 'Comprar material para a produção dos terços da Sagrada Face e Sto. Antônio.'},
     ],
-    "Fase 4: 3 a 2 Meses Antes (Fev/26 a Mar/26) - Burocracia Civil e Religiosa": [
-        {'id': 'habilitacao-cartorio', 'text': 'Dar Entrada no Processo de Habilitação para o Casamento Civil no Cartório.'},
+    "Fase 4: 3 a 2 Meses Antes (Jun/26 a Jul/26) - Burocracia Civil e Religiosa": [
+        {'id': 'solicitar-batisterios', 'text': '⚠️ Solicitar os Batistérios ATUALIZADOS para fins matrimoniais (Prazo para solicitar: 14/06/2026).'},
+        {'id': 'habilitacao-cartorio', 'text': 'Dar Entrada no Processo de Habilitação para o Casamento Civil no Cartório (Prazo: 14/06/2026).'},
         {'id': 'docs-noiva-cartorio', 'text': 'Daniela: levar Certidão de Casamento anterior com averbação do óbito, Certidão de Óbito e andamento do inventário.', 'is_note': True},
-        {'id': 'agendar-civil', 'text': 'Agendar a data do Casamento Civil no Cartório (deve ser ANTES de 02/05/2026).'},
-        {'id': 'realizar-civil', 'text': 'Realizar o Casamento Civil no Cartório e retirar a Certidão de Casamento.'},
-        {'id': 'marcar-entrevista-padre', 'text': 'Marcar Entrevista com o Padre (Processo Matrimonial - 70 dias antes).'},
-        {'id': 'entregar-docs-paroquia', 'text': 'Entregar os documentos do processo religioso na paróquia (Batistério, etc).'},
+        {'id': 'agendar-civil', 'text': 'Agendar a data do Casamento Civil no Cartório.'},
+        {'id': 'realizar-civil', 'text': 'Realizar o Casamento Civil e retirar a Certidão (Realizar antes de 10/09/2026).'},
+        {'id': 'marcar-entrevista-padre', 'text': 'Marcar Entrevista com o Padre para o Processo Matrimonial (Prazo: 04/07/2026).'},
+        {'id': 'entregar-docs-paroquia', 'text': 'Entregar os documentos do processo religioso na paróquia (durante a entrevista).'},
         {'id': 'imprimir-enviar-convites', 'text': 'Imprimir e começar a enviar/entregar os convites.'},
     ],
-    "Fase 5: 1 Mês Antes (Abril/2026) - Reta Final": [
-        {'id': 'confirmar-presenca-rsvp', 'text': 'Confirmar Presença (RSVP) e fechar número de convidados.'},
+    "Fase 5: 1 Mês Antes (Agosto/2026) - Reta Final": [
+        {'id': 'confirmar-presenca-rsvp', 'text': 'Confirmar Presença (RSVP) e fechar número de convidados (Prazo: 13/08/2026).'},
         {'id': 'reuniao-final-fornecedores', 'text': 'Reunião Final com todos os fornecedores.'},
         {'id': 'prova-final-trajes', 'text': 'Prova Final do Vestido e Terno.'},
         {'id': 'definir-leituras-musicas', 'text': 'Definir com o Padre as leituras e músicas da cerimônia.'},
@@ -138,7 +141,7 @@ checklist_data = {
         {'id': 'prova-cabelo-maquiagem', 'text': 'Fazer teste final de cabelo e maquiagem.'},
     ],
     "Na Semana do Casamento": [
-        {'id': 'entregar-certidao-civil', 'text': '⚠️ ENTREGAR A XEROX DA CERTIDÃO CIVIL NA PARÓQUIA (Até 2 dias antes!).', 'is_note': True},
+        {'id': 'entregar-certidao-civil', 'text': '⚠️ ENTREGAR A XEROX DA CERTIDÃO CIVIL NA PARÓQUIA (Prazo: 10/09/2026).', 'is_note': True},
         {'id': 'buscar-trajes', 'text': 'Buscar o Vestido e o Terno.'},
         {'id': 'confirmar-horarios-todos', 'text': 'Confirmar horário com TODOS os profissionais (foto, make, bolo, etc).'},
         {'id': 'finalizar-tercos', 'text': 'Finalizar a produção e embalagem dos terços.'},
@@ -146,7 +149,7 @@ checklist_data = {
         {'id': 'separar-documentos-aliancas', 'text': 'Separar em uma pasta os documentos para o dia e as alianças.'},
         {'id': 'relaxar', 'text': 'Descansar e relaxar! Delegar as últimas tarefas.'},
     ],
-    "No Grande Dia: 02/05/2026": [
+    "No Grande Dia: 12/09/2026": [
         {'id': 'cafe-reforcado', 'text': 'Tomar um café da manhã reforçado e se hidratar.'},
         {'id': 'chegar-pontualmente', 'text': 'Chegar Pontualmente na Igreja.'},
         {'id': 'aproveitar', 'text': 'Aproveitar, celebrar e viver cada segundo!'},
@@ -163,7 +166,7 @@ if 'tasks_status' not in st.session_state:
 
 # --- Cabeçalho ---
 st.markdown('<h1 class="wedding-names">Daniela & Thiago</h1>', unsafe_allow_html=True)
-st.markdown('<p class="wedding-date">Nosso caminho até 02 de Maio de 2026</p>', unsafe_allow_html=True)
+st.markdown('<p class="wedding-date">Nosso caminho até 12 de Setembro de 2026</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 
@@ -179,14 +182,39 @@ st.markdown(f"<p style='text-align: right; color: #555;'>{completed_tasks} de {t
 
 # --- Contagem Regressiva ---
 st.subheader("Contagem Regressiva para o Grande Dia")
-wedding_date = datetime.datetime(2026, 5, 2, 16, 0, 0)
+wedding_date = datetime.datetime(2026, 9, 12, 16, 0, 0)
 countdown_placeholder = st.empty()
 
 # --- Layout do Checklist ---
 st.subheader("Nosso Checklist Detalhado")
 
+# Determina qual expander deve abrir por padrão
+current_date = datetime.datetime.now()
+default_expanded_phase_key = next(iter(checklist_data)) # Padrão para o primeiro
+
+# Lógica para expandir a fase atual
+if wedding_date > current_date:
+    time_to_wedding = wedding_date - current_date
+    months_to_wedding = time_to_wedding.days / 30.44
+
+    if months_to_wedding <= 1:
+        default_expanded_phase_key = "Na Semana do Casamento"
+    elif months_to_wedding <= 2:
+        default_expanded_phase_key = "Fase 5: 1 Mês Antes (Agosto/2026) - Reta Final"
+    elif months_to_wedding <= 4:
+        default_expanded_phase_key = "Fase 4: 3 a 2 Meses Antes (Jun/26 a Jul/26) - Burocracia Civil e Religiosa"
+    elif months_to_wedding <= 7:
+        default_expanded_phase_key = "Fase 3: 6 a 4 Meses Antes (Mar/26 a Mai/26) - Trajes, Convites e Detalhes"
+    elif months_to_wedding <= 10:
+        default_expanded_phase_key = "Fase 2: 9 a 7 Meses Antes (Dez/25 a Fev/26) - Fornecedores Principais"
+    else:
+        default_expanded_phase_key = "Fase 1: 12 a 10 Meses Antes (Set/25 a Nov/25) - Planejamento Inicial"
+
+
 for phase, tasks in checklist_data.items():
-    with st.expander(f"🗓️ {phase}", expanded=(phase == "Fase 1: 8 a 7 Meses Antes (Set/25 a Out/25) - Planejamento Inicial")):
+    # A fase atual ou a primeira fase será expandida por padrão
+    is_expanded = phase == default_expanded_phase_key
+    with st.expander(f"🗓️ {phase}", expanded=is_expanded):
         for task in tasks:
             if task.get('is_note'):
                 st.info(task['text'])
