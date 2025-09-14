@@ -28,7 +28,7 @@ body {
 /* --- ESTILOS DO CABEÇALHO --- */
 
 .wedding-names {
-    font-family: 'Edwardian Script ITC', cursive; /* Nova fonte elegante e sofisticada */
+    font-family: 'Edwardian Script ITC', cursive; /* Fonte elegante e sofisticada */
     font-size: 6rem; /* Ajuste no tamanho para a nova fonte */
     font-weight: 400;
     text-align: center;
@@ -89,14 +89,14 @@ body {
 """, unsafe_allow_html=True)
 
 
-# --- Dados do Checklist ---
+# --- Dados do Checklist (ATUALIZADOS) ---
 checklist_data = {
     "Fase 1: 8 a 7 Meses Antes (Set/25 a Out/25) - Planejamento Inicial": [
         {'id': 'definir-orcamento', 'text': 'Definir o Orçamento Geral do Casamento.'},
         {'id': 'lista-convidados-preliminar', 'text': 'Criar a Lista Preliminar de Convidados.'},
         {'id': 'escolher-padrinhos', 'text': 'Convidar Padrinhos e Madrinhas (máx. 3 casais por noivo, católicos e casados na igreja).'},
-        {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar a nova data (02/05/2026).'},
-        {'id': 'ponto-atencao-padre', 'text': '⚠️ Agendar conversa com o Padre Carlos para confirmar o religioso com efeito civil e tirar dúvidas sobre a viuvez.', 'is_note': True},
+        {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar a data religiosa (02/05/2026).'},
+        {'id': 'ponto-atencao-padre', 'text': '⚠️ Agendar conversa com o Padre Carlos para tirar dúvidas sobre a viuvez e o processo religioso.', 'is_note': True},
         {'id': 'agendar-curso-noivos', 'text': 'Pesquisar e se inscrever no Curso de Noivos (fazer em outra paróquia).'},
         {'id': 'confirmar-salao', 'text': 'Confirmar a reserva do salão anexo da igreja para a recepção.'},
         {'id': 'iniciar-docs', 'text': 'Começar a solicitar os documentos com calma (Batistérios atualizados, etc.).'},
@@ -120,13 +120,13 @@ checklist_data = {
         {'id': 'encomendar-tercos-ns', 'text': 'Encomendar os terços de Nossa Senhora das Lágrimas.'},
         {'id': 'material-tercos-proprios', 'text': 'Comprar material para a produção dos terços da Sagrada Face e Sto. Antônio.'},
     ],
-    "Fase 4: 2 Meses Antes (Março/2026) - Burocracia Final": [
-        {'id': 'habilitacao-cartorio', 'text': 'Dar Entrada no Processo de Habilitação no Cartório (Levar todos os documentos).'},
+    "Fase 4: 3 a 2 Meses Antes (Fev/26 a Mar/26) - Burocracia Civil e Religiosa": [
+        {'id': 'habilitacao-cartorio', 'text': 'Dar Entrada no Processo de Habilitação para o Casamento Civil no Cartório.'},
         {'id': 'docs-noiva-cartorio', 'text': 'Daniela: levar Certidão de Casamento anterior com averbação do óbito, Certidão de Óbito e andamento do inventário.', 'is_note': True},
-        {'id': 'publicacao-proclamas', 'text': 'Aguardar a publicação dos proclamas no cartório (15 dias).'},
-        {'id': 'retirar-habilitacao', 'text': 'Retirar a Certidão de Habilitação no Cartório.'},
+        {'id': 'agendar-civil', 'text': 'Agendar a data do Casamento Civil no Cartório (deve ser ANTES de 02/05/2026).'},
+        {'id': 'realizar-civil', 'text': 'Realizar o Casamento Civil no Cartório e retirar a Certidão de Casamento.'},
         {'id': 'marcar-entrevista-padre', 'text': 'Marcar Entrevista com o Padre (Processo Matrimonial - 70 dias antes).'},
-        {'id': 'entregar-habilitacao-paroquia', 'text': 'Entregar a Certidão de Habilitação do Cartório na Paróquia.'},
+        {'id': 'entregar-docs-paroquia', 'text': 'Entregar os documentos do processo religioso na paróquia (Batistério, etc).'},
         {'id': 'imprimir-enviar-convites', 'text': 'Imprimir e começar a enviar/entregar os convites.'},
     ],
     "Fase 5: 1 Mês Antes (Abril/2026) - Reta Final": [
@@ -135,14 +135,15 @@ checklist_data = {
         {'id': 'prova-final-trajes', 'text': 'Prova Final do Vestido e Terno.'},
         {'id': 'definir-leituras-musicas', 'text': 'Definir com o Padre as leituras e músicas da cerimônia.'},
         {'id': 'ensaio-igreja', 'text': 'Agendar e realizar ensaio na igreja com pais e padrinhos (se necessário).'},
-        {'id': 'prova-cabelo-maquear', 'text': 'Fazer teste final de cabelo e maquiagem.'},
+        {'id': 'prova-cabelo-maquiagem', 'text': 'Fazer teste final de cabelo e maquiagem.'},
     ],
     "Na Semana do Casamento": [
+        {'id': 'entregar-certidao-civil', 'text': '⚠️ ENTREGAR A XEROX DA CERTIDÃO CIVIL NA PARÓQUIA (Até 2 dias antes!).', 'is_note': True},
         {'id': 'buscar-trajes', 'text': 'Buscar o Vestido e o Terno.'},
         {'id': 'confirmar-horarios-todos', 'text': 'Confirmar horário com TODOS os profissionais (foto, make, bolo, etc).'},
         {'id': 'finalizar-tercos', 'text': 'Finalizar a produção e embalagem dos terços.'},
         {'id': 'organizar-malas-lua-de-mel', 'text': 'Organizar as Malas da Lua de Mel.'},
-        {'id': 'separar-documentos-aliancas', 'text': 'Separar em uma pasta todos os documentos e as alianças.'},
+        {'id': 'separar-documentos-aliancas', 'text': 'Separar em uma pasta os documentos para o dia e as alianças.'},
         {'id': 'relaxar', 'text': 'Descansar e relaxar! Delegar as últimas tarefas.'},
     ],
     "No Grande Dia: 02/05/2026": [
@@ -151,8 +152,6 @@ checklist_data = {
         {'id': 'aproveitar', 'text': 'Aproveitar, celebrar e viver cada segundo!'},
     ],
     "Pós-Casamento": [
-        {'id': 'pegar-termo-igreja', 'text': 'Pegar o Termo do Casamento Religioso com Efeito Civil na Igreja.'},
-        {'id': 'prazo-90-dias', 'text': '✅ REGISTRAR NO CARTÓRIO (PRAZO DE 90 DIAS!): Levar o Termo ao cartório para emitir a Certidão de Casamento definitiva.', 'is_note': True},
         {'id': 'alterar-documentos', 'text': 'Providenciar alteração de documentos (se houver mudança de nome).'},
         {'id': 'agradecimentos', 'text': 'Enviar cartões ou mensagens de agradecimento.'},
     ]
