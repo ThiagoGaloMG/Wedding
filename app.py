@@ -7,7 +7,7 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(
     page_title="Checklist do Casamento | Daniela & Thiago",
     page_icon="💖",
-    layout="centered", # Alterado para 'centered' para melhor legibilidade
+    layout="centered", # Mantido 'centered' para melhor legibilidade
     initial_sidebar_state="collapsed",
 )
 
@@ -32,7 +32,7 @@ body {
 /* --- ESTILOS DO CABEÇALHO --- */
 .wedding-names {
     font-family: 'Dancing Script', cursive;
-    font-size: 4.5rem; /* Reduzido para melhor encaixe em mobile */
+    font-size: 4.5rem;
     font-weight: 700;
     text-align: center;
     color: #c2185b;
@@ -71,7 +71,7 @@ body {
 .countdown-container {
     display: flex;
     justify-content: center;
-    gap: 1rem; /* Espaçamento reduzido para mobile */
+    gap: 1rem;
     text-align: center;
     padding: 1.5rem;
     background: linear-gradient(135deg, #fff1f5, #ffe6ec); /* Fundo sólido */
@@ -99,7 +99,7 @@ body {
 
 /* --- CHECKLIST --- */
 .stExpander {
-    background-color: #ffffff; /* Fundo branco sólido */
+    background-color: #ffffff; /* CORREÇÃO: Fundo branco sólido para legibilidade */
     border: none !important;
     border-radius: 10px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
@@ -109,9 +109,9 @@ body {
 /* Estilo para o texto da tarefa */
 .task-text {
     margin: 0;
-    padding-top: 8px; /* Alinhamento vertical com a caixinha */
+    padding-top: 8px;
     font-size: 1rem;
-    color: #333; /* Cor mais escura para legibilidade */
+    color: #333;
     transition: color 0.3s;
 }
 
@@ -138,7 +138,7 @@ div[data-testid="stCheckbox"] > label > div:first-of-type[aria-checked="true"] {
 .footer {
     text-align: center;
     padding: 2rem;
-    background-color: #ffffff;
+    background-color: #ffffff; /* CORREÇÃO: Fundo branco sólido para legibilidade */
     border-radius: 10px;
     margin-top: 2rem;
 }
