@@ -86,7 +86,7 @@ body { background-color: #fff9fb; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- DADOS INICIAIS DO CHECKLIST (ATUALIZADOS) ---
+# --- DADOS INICIAIS DO CHECKLIST ---
 initial_checklist_data = {
     "Fase 1: Planejamento Inicial (até Dez/25)": [
         {'id': 'definir-orcamento', 'text': 'Definir o Orçamento Geral do Casamento.', 'checked': False},
@@ -157,27 +157,79 @@ if 'checklist_loaded' not in st.session_state:
 if 'editing_task' not in st.session_state:
     st.session_state.editing_task = None
 
+
 # --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST ---
 def add_task(phase, text):
     new_task = {'id': f'custom_{datetime.datetime.now().timestamp()}', 'text': text, 'checked': False}
     st.session_state.checklist[phase].append(new_task)
-    storage.setItem('wedding_checklist', st.session_state.checklist)
 
 def delete_task(phase, task_id):
     st.session_state.checklist[phase] = [t for t in st.session_state.checklist[phase] if t['id'] != task_id]
-    storage.setItem('wedding_checklist', st.session_state.checklist)
 
 def update_task_text(phase, task_id, new_text):
     for task in st.session_state.checklist[phase]:
         if task['id'] == task_id:
             task['text'] = new_text
             break
-    storage.setItem('wedding_checklist', st.session_state.checklist)
     st.session_state.editing_task = None
+
+
+# --- FUNÇÃO PARA GERAR HTML PARA IMPRESSÃO ---
+def generate_printable_html(checklist):
+    html = f"""
+    <html>
+    <head>
+        <title>Checklist Casamento - Daniela & Thiago</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;600&display=swap');
+            body {{ font-family: 'Montserrat', sans-serif; padding: 20px; }}
+            h1 {{ font-family: 'Dancing Script', cursive; font-size: 3rem; color: #c2185b; text-align: center; }}
+            h2 {{ font-family: 'Montserrat', sans-serif; color: #333; border-bottom: 2px solid #f1f1f1; padding-bottom: 5px; }}
+            ul {{ list-style-type: none; padding-left: 0; }}
+            li {{ margin-bottom: 10px; font-size: 1.1rem; }}
+            .checked {{ text-decoration: line-through; color: #aaa; }}
+            .note {{ background-color: #fffbe6; border-left: 5px solid #ffe58f; padding: 10px; margin: 10px 0; }}
+        </style>
+    </head>
+    <body>
+        <h1>✨ Daniela & Thiago ✨</h1>
+        <hr>
+    """
+    for phase, tasks in checklist.items():
+        html += f"<h2>{phase}</h2><ul>"
+        for task in tasks:
+            if task.get('is_note'):
+                html += f"<li class='note'>{task['text']}</li>"
+            else:
+                checked_class = "checked" if task.get('checked') else ""
+                checkbox = "☑" if task.get('checked') else "☐"
+                html += f"<li class='{checked_class}'>{checkbox} {task['text']}</li>"
+        html += "</ul>"
+    html += "</body></html>"
+    return html
+
 
 # --- LAYOUT DA PÁGINA ---
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
 st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>', unsafe_allow_html=True)
+
+# --- BOTÕES DE AÇÃO ---
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Salvar Alterações 💾", use_container_width=True):
+        storage.setItem('wedding_checklist', st.session_state.checklist)
+        st.toast("Checklist salvo com sucesso!", icon="✅")
+
+with col2:
+    printable_html = generate_printable_html(st.session_state.checklist)
+    st.download_button(
+        label="Exportar para Impressão 🖨️",
+        data=printable_html,
+        file_name="checklist_casamento_daniela_thiago.html",
+        mime="text/html",
+        use_container_width=True
+    )
+
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- Barra de Progresso Geral ---
@@ -219,7 +271,6 @@ for phase, tasks in st.session_state.checklist.items():
                 is_checked = st.checkbox("", value=task.get('checked', False), key=f"cb_{task_id}")
                 if is_checked != task.get('checked', False):
                     task['checked'] = is_checked
-                    storage.setItem('wedding_checklist', st.session_state.checklist)
                     st.rerun()
 
             with cols[1]:
@@ -284,3 +335,4 @@ with countdown_placeholder.container():
         </div>
         """, unsafe_allow_html=True)
     st_autorefresh(interval=1000, key="countdownrefresh")
+
