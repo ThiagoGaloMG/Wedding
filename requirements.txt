@@ -1,3 +1,4 @@
 streamlit
 streamlit-autorefresh
 streamlit-local-storage
+firebase-admin
