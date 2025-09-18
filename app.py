@@ -2,7 +2,9 @@
 import streamlit as st
 import datetime
 import streamlit.components.v1 as components
-from streamlit_local_storage import LocalStorage
+import json
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 # --- Configuração da Página ---
 st.set_page_config(
@@ -26,7 +28,6 @@ body { background-color: #fff9fb; }
     background-size: cover;
     font-family: 'Montserrat', sans-serif;
 }
-/* Oculta o menu hamburguer e o footer do Streamlit */
 #MainMenu, footer { display: none; }
 
 /* --- CABEÇALHO --- */
@@ -85,6 +86,29 @@ body { background-color: #fff9fb; }
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# --- CONFIGURAÇÃO DO FIREBASE (Segura para o Streamlit) ---
+@st.cache_resource
+def init_firebase():
+    try:
+        # Verifica se as credenciais estão nos segredos do Streamlit
+        if "firebase_credentials" in st.secrets:
+            creds_json = json.loads(st.secrets["firebase_credentials"])
+            cred = credentials.Certificate(creds_json)
+            # Evita reinicializar o app se já estiver inicializado
+            if not firebase_admin._apps:
+                firebase_admin.initialize_app(cred)
+            return firestore.client()
+        else:
+            st.error("As credenciais do Firebase não foram encontradas nos segredos do Streamlit.")
+            return None
+    except Exception as e:
+        st.error(f"Falha ao conectar com o Firebase: {e}")
+        return None
+
+db = init_firebase()
+CHECKLIST_ID = "daniela_thiago_2026" # ID único para o checklist de vocês
 
 # --- DADOS INICIAIS DO CHECKLIST ---
 initial_checklist_data = {
@@ -146,25 +170,43 @@ initial_checklist_data = {
     ],
 }
 
-# --- INICIALIZAÇÃO DO ESTADO E PERSISTÊNCIA ---
-storage = LocalStorage()
+# --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST COM FIREBASE ---
+@st.cache_data(ttl=30) # Cache para evitar leituras excessivas
+def get_checklist_from_firestore():
+    if db:
+        doc_ref = db.collection("checklists").document(CHECKLIST_ID)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        else: # Se não existe, cria o documento inicial
+            save_checklist_to_firestore(initial_checklist_data)
+            return initial_checklist_data
+    return initial_checklist_data
 
-if 'checklist_loaded' not in st.session_state:
-    saved_checklist = storage.getItem('wedding_checklist')
-    st.session_state.checklist = saved_checklist if saved_checklist else initial_checklist_data
-    st.session_state.checklist_loaded = True
+def save_checklist_to_firestore(data):
+    if db:
+        # Garante que os dados estão em formato compatível com JSON
+        clean_data = json.loads(json.dumps(data))
+        doc_ref = db.collection("checklists").document(CHECKLIST_ID)
+        doc_ref.set(clean_data)
+
+# Carrega os dados no início
+if 'checklist' not in st.session_state:
+    st.session_state.checklist = get_checklist_from_firestore()
 
 if 'editing_task' not in st.session_state:
     st.session_state.editing_task = None
 
 
-# --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST ---
+# --- FUNÇÕES DE MANIPULAÇÃO LOCAL (que chamam o save) ---
 def add_task(phase, text):
     new_task = {'id': f'custom_{datetime.datetime.now().timestamp()}', 'text': text, 'checked': False}
     st.session_state.checklist[phase].append(new_task)
+    save_checklist_to_firestore(st.session_state.checklist)
 
 def delete_task(phase, task_id):
     st.session_state.checklist[phase] = [t for t in st.session_state.checklist[phase] if t['id'] != task_id]
+    save_checklist_to_firestore(st.session_state.checklist)
 
 def update_task_text(phase, task_id, new_text):
     for task in st.session_state.checklist[phase]:
@@ -172,7 +214,14 @@ def update_task_text(phase, task_id, new_text):
             task['text'] = new_text
             break
     st.session_state.editing_task = None
+    save_checklist_to_firestore(st.session_state.checklist)
 
+def update_task_status(phase, task_id, status):
+     for task in st.session_state.checklist[phase]:
+        if task['id'] == task_id:
+            task['checked'] = status
+            break
+     save_checklist_to_firestore(st.session_state.checklist)
 
 # --- FUNÇÃO PARA GERAR HTML PARA IMPRESSÃO ---
 def generate_printable_html(checklist):
@@ -208,27 +257,19 @@ def generate_printable_html(checklist):
     html += "</body></html>"
     return html
 
-
 # --- LAYOUT DA PÁGINA ---
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
 st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>', unsafe_allow_html=True)
 
-# --- BOTÕES DE AÇÃO ---
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("Salvar Alterações 💾", use_container_width=True):
-        storage.setItem('wedding_checklist', st.session_state.checklist)
-        st.toast("Checklist salvo com sucesso!", icon="✅")
-
-with col2:
-    printable_html = generate_printable_html(st.session_state.checklist)
-    st.download_button(
-        label="Exportar para Impressão 🖨️",
-        data=printable_html,
-        file_name="checklist_casamento_daniela_thiago.html",
-        mime="text/html",
-        use_container_width=True
-    )
+# --- BOTÃO DE EXPORTAR ---
+printable_html = generate_printable_html(st.session_state.checklist)
+st.download_button(
+    label="Exportar para Impressão 🖨️",
+    data=printable_html,
+    file_name="checklist_casamento_daniela_thiago.html",
+    mime="text/html",
+    use_container_width=True
+)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -255,34 +296,26 @@ countdown_html = f"""
     <div class="countdown-box-js"><span id="minutes" class="countdown-number-js"></span><span class="countdown-label-js">Minutos</span></div>
     <div class="countdown-box-js"><span id="seconds" class="countdown-number-js"></span><span class="countdown-label-js">Segundos</span></div>
 </div>
-
 <script>
 const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
-
 const interval = setInterval(function() {{
     const now = new Date().getTime();
     const distance = countdownDate - now;
-
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    // Adiciona um zero à esquerda se for menor que 10
     const format = (num) => num < 10 ? '0' + num : num;
-
     const daysEl = document.getElementById("days");
     const hoursEl = document.getElementById("hours");
     const minutesEl = document.getElementById("minutes");
     const secondsEl = document.getElementById("seconds");
-
     if(daysEl && hoursEl && minutesEl && secondsEl) {{
         daysEl.innerText = days;
         hoursEl.innerText = format(hours);
         minutesEl.innerText = format(minutes);
         secondsEl.innerText = format(seconds);
     }}
-
     if (distance < 0) {{
         clearInterval(interval);
         const container = document.querySelector(".countdown-container-js");
@@ -295,9 +328,11 @@ const interval = setInterval(function() {{
 """
 components.html(countdown_html, height=130)
 
-
 # --- Layout do Checklist ---
 st.subheader("Nosso Checklist Detalhado")
+
+if not db:
+    st.warning("A conexão com o banco de dados falhou. As alterações não serão salvas online.")
 
 for phase, tasks in st.session_state.checklist.items():
     with st.expander(f"🗓️ {phase}", expanded=False):
@@ -318,7 +353,7 @@ for phase, tasks in st.session_state.checklist.items():
             with cols[0]:
                 is_checked = st.checkbox("", value=task.get('checked', False), key=f"cb_{task_id}")
                 if is_checked != task.get('checked', False):
-                    task['checked'] = is_checked
+                    update_task_status(phase, task_id, is_checked)
                     st.rerun()
 
             with cols[1]:
