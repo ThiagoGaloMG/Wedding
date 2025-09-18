@@ -2,6 +2,7 @@
 import streamlit as st
 import datetime
 from streamlit_autorefresh import st_autorefresh
+from streamlit_local_storage import LocalStorage
 
 # --- Configuração da Página ---
 st.set_page_config(
@@ -85,7 +86,7 @@ body { background-color: #fff9fb; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- DADOS INICIAIS DO CHECKLIST ---
+# --- DADOS INICIAIS DO CHECKLIST (ATUALIZADOS) ---
 initial_checklist_data = {
     "Fase 1: Planejamento Inicial (até Dez/25)": [
         {'id': 'definir-orcamento', 'text': 'Definir o Orçamento Geral do Casamento.', 'checked': False},
@@ -94,6 +95,7 @@ initial_checklist_data = {
         {'id': 'ponto-atencao-padre', 'text': '❤️ ATENÇÃO ESPECIAL: Agendar conversa com Padre Carlos para alinhar detalhes sobre viuvez e o processo religioso.', 'is_note': True},
         {'id': 'agendar-curso-noivos', 'text': 'Pesquisar e se inscrever no Curso de Noivos.', 'checked': False},
         {'id': 'confirmar-salao', 'text': 'Confirmar a reserva do salão anexo da igreja para a recepção.', 'checked': False},
+        {'id': 'design-convites', 'text': 'Definir o design dos convites.', 'checked': False},
     ],
     "Fase 2: Contratando Fornecedores (Jan/26 a Mar/26)": [
         {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar data religiosa (05/09/2026).', 'checked': False},
@@ -111,22 +113,22 @@ initial_checklist_data = {
         {'id': 'contratar-traje-noivo', 'text': 'Contratar/Comprar o Traje do Noivo.', 'checked': False},
         {'id': 'contratar-dia-noiva-profissional', 'text': 'Contratar profissional para o Dia da Noiva.', 'checked': False},
         {'id': 'criar-site', 'text': 'Criar e configurar o Site dos Noivos (Lejour).', 'checked': False},
-        {'id': 'design-convites', 'text': 'Definir o design dos convites.', 'checked': False},
         {'id': 'lista-convidados-final', 'text': 'Finalizar a Lista de Convidados.', 'checked': False},
         {'id': 'encomendar-bolo-doces', 'text': 'Encomendar Bolo e Docinhos.', 'checked': False},
         {'id': 'encomendar-tercos-ns', 'text': 'Encomendar os terços de Nossa Sra. das Lágrimas.', 'checked': False},
         {'id': 'material-tercos-proprios', 'text': 'Comprar material para a produção dos terços.', 'checked': False},
         {'id': 'batismo-thiago', 'text': '🗓️ PRAZO: A partir de 05/03/26 - Thiago: Solicitar Certidão de Batismo para fins matrimoniais.', 'checked': False},
+        {'id': 'batismo-daniela', 'text': '🗓️ PRAZO: A partir de 05/08/26 - Daniela: Solicitar Certidão de Batismo.', 'checked': False},
     ],
     "Fase 4: Processos Oficiais (Jun/26 a Jul/26)": [
-        {'id': 'solicitar-certidoes-civil', 'text': '⚠️ BUROCRACIA: A partir de 05/06/26, solicitar TODAS as certidões para o civil (Nascimento, Casamento anterior, Óbito). Valem 90 dias.', 'is_note': True},
+        {'id': 'solicitar-docs-daniela', 'text': '🗓️ PRAZO: A partir de 04/06/2026 - Daniela: Solicitar certidões de Casamento Anterior, Óbito e Inventário (valem 90 dias).', 'checked': False},
+        {'id': 'solicitar-docs-thiago', 'text': '🗓️ PRAZO: A partir de 04/06/2026 - Thiago: Solicitar certidão de Nascimento (vale 90 dias).', 'checked': False},
         {'id': 'marcar-entrevista-padre', 'text': '🗓️ PRAZO: Até 27/06/26 - Marcar Entrevista com o Padre e iniciar o processo na Paróquia.', 'checked': False},
         {'id': 'entregar-docs-paroquia', 'text': 'Entregar documentos do processo religioso na paróquia.', 'checked': False},
         {'id': 'habilitacao-cartorio', 'text': '🗓️ PRAZO: Início de Julho - Dar Entrada na Habilitação do Casamento Civil com as testemunhas.', 'checked': False},
         {'id': 'imprimir-enviar-convites', 'text': 'Imprimir e começar a enviar/entregar os convites.', 'checked': False},
     ],
     "Fase 5: Reta Final (Agosto/2026)": [
-        {'id': 'batismo-daniela', 'text': '🗓️ PRAZO FINAL: Até 05/08/26 - Daniela: Solicitar Certidão de Batismo.', 'checked': False},
         {'id': 'confirmar-presenca-rsvp', 'text': '🗓️ PRAZO: Até 22/08/26 - Confirmar Presença (RSVP).', 'checked': False},
         {'id': 'reuniao-final-fornecedores', 'text': 'Reunião Final com todos os fornecedores.', 'checked': False},
         {'id': 'prova-final-trajes', 'text': 'Prova Final do Vestido e Terno.', 'checked': False},
@@ -144,28 +146,34 @@ initial_checklist_data = {
     ],
 }
 
-# --- INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
-if 'checklist' not in st.session_state:
-    st.session_state.checklist = initial_checklist_data
+# --- INICIALIZAÇÃO DO ESTADO E PERSISTÊNCIA ---
+storage = LocalStorage()
+
+if 'checklist_loaded' not in st.session_state:
+    saved_checklist = storage.getItem('wedding_checklist')
+    st.session_state.checklist = saved_checklist if saved_checklist else initial_checklist_data
+    st.session_state.checklist_loaded = True
+
 if 'editing_task' not in st.session_state:
     st.session_state.editing_task = None
-
 
 # --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST ---
 def add_task(phase, text):
     new_task = {'id': f'custom_{datetime.datetime.now().timestamp()}', 'text': text, 'checked': False}
     st.session_state.checklist[phase].append(new_task)
+    storage.setItem('wedding_checklist', st.session_state.checklist)
 
 def delete_task(phase, task_id):
     st.session_state.checklist[phase] = [t for t in st.session_state.checklist[phase] if t['id'] != task_id]
+    storage.setItem('wedding_checklist', st.session_state.checklist)
 
 def update_task_text(phase, task_id, new_text):
     for task in st.session_state.checklist[phase]:
         if task['id'] == task_id:
             task['text'] = new_text
             break
+    storage.setItem('wedding_checklist', st.session_state.checklist)
     st.session_state.editing_task = None
-
 
 # --- LAYOUT DA PÁGINA ---
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
@@ -193,14 +201,12 @@ st.subheader("Nosso Checklist Detalhado")
 
 for phase, tasks in st.session_state.checklist.items():
     with st.expander(f"🗓️ {phase}", expanded=False):
-        # Progresso por Fase
         phase_total = sum(1 for t in tasks if not t.get('is_note'))
         phase_completed = sum(1 for t in tasks if t.get('checked'))
         phase_progress = phase_completed / phase_total if phase_total > 0 else 0
         st.markdown(f"<p style='text-align: right; font-size: 0.9rem;'>{phase_completed}/{phase_total} ({phase_progress:.0%}) concluído</p>", unsafe_allow_html=True)
         st.progress(phase_progress)
         
-        # Lista de Tarefas
         for i, task in enumerate(tasks):
             if task.get('is_note'):
                 st.warning(task['text'])
@@ -209,22 +215,23 @@ for phase, tasks in st.session_state.checklist.items():
             task_id = task['id']
             cols = st.columns([0.1, 1.8, 0.2, 0.2])
             
-            # Coluna do Checkbox
             with cols[0]:
-                task['checked'] = st.checkbox("", value=task.get('checked', False), key=f"cb_{task_id}")
+                is_checked = st.checkbox("", value=task.get('checked', False), key=f"cb_{task_id}")
+                if is_checked != task.get('checked', False):
+                    task['checked'] = is_checked
+                    storage.setItem('wedding_checklist', st.session_state.checklist)
+                    st.rerun()
 
-            # Coluna do Texto da Tarefa / Edição
             with cols[1]:
                 if st.session_state.editing_task == task_id:
                     new_text = st.text_input("Editar tarefa", value=task['text'], key=f"edit_{task_id}", label_visibility="collapsed")
-                    if new_text != task['text']:
+                    if st.button("Salvar", key=f"save_{task_id}"):
                         update_task_text(phase, task_id, new_text)
-                        st.rerun() # Atualiza a UI
+                        st.rerun()
                 else:
                     checked_class = "checked" if task.get('checked') else ""
                     st.markdown(f"<div class='task-container'><p class='task-text {checked_class}'>❤️ {task['text']}</p></div>", unsafe_allow_html=True)
             
-            # Coluna de Botões
             with cols[2]:
                 if st.button("✏️", key=f"btn_edit_{task_id}", help="Editar tarefa"):
                     st.session_state.editing_task = task_id
@@ -234,7 +241,6 @@ for phase, tasks in st.session_state.checklist.items():
                     delete_task(phase, task_id)
                     st.rerun()
         
-        # Adicionar Nova Tarefa
         st.markdown("---")
         new_task_text = st.text_input("Nova tarefa", key=f"new_task_{phase}", placeholder="Adicionar nova tarefa nesta fase...")
         if st.button("Adicionar Tarefa", key=f"add_btn_{phase}"):
@@ -278,4 +284,3 @@ with countdown_placeholder.container():
         </div>
         """, unsafe_allow_html=True)
     st_autorefresh(interval=1000, key="countdownrefresh")
-
