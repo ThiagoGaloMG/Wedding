@@ -1,7 +1,7 @@
 # Lembre-se de criar o arquivo requirements.txt para que esta linha funcione!
 import streamlit as st
 import datetime
-from streamlit_autorefresh import st_autorefresh
+import streamlit.components.v1 as components
 from streamlit_local_storage import LocalStorage
 
 # --- Configuração da Página ---
@@ -44,16 +44,16 @@ body { background-color: #fff9fb; }
 .progress-text { font-size: 1.2rem; font-weight: 600; color: #c2185b; }
 .progress-subtext { color: #666; }
 
-/* --- CONTAGEM REGRESSIVA --- */
+/* --- CONTAGEM REGRESSIVA (Estilos para o componente HTML) --- */
 .countdown-section h2 { text-align: center; font-weight: 600; color: #333; font-size: 1.5rem; }
-.countdown-container {
+.countdown-container-js {
     display: flex; justify-content: center; gap: 1rem; text-align: center; padding: 1.5rem;
     background: linear-gradient(135deg, #fff1f5, #ffe6ec); border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(255, 255, 255, 0.9);
 }
-.countdown-box { background-color: rgba(255, 255, 255, 0.5); padding: 0.8rem; border-radius: 10px; width: 80px; }
-.countdown-number { font-size: 2rem; font-weight: bold; color: #d81b60; }
-.countdown-label { font-size: 0.7rem; text-transform: uppercase; color: #666; }
+.countdown-box-js { background-color: rgba(255, 255, 255, 0.5); padding: 0.8rem; border-radius: 10px; width: 80px; }
+.countdown-number-js { font-size: 2rem; font-weight: bold; color: #d81b60; }
+.countdown-label-js { font-size: 0.7rem; text-transform: uppercase; color: #666; }
 
 /* --- CHECKLIST --- */
 .stExpander {
@@ -80,8 +80,8 @@ body { background-color: #fff9fb; }
 
 @media (max-width: 640px) {
     .wedding-names { font-size: 3.5rem; }
-    .countdown-box { width: 65px; padding: 0.5rem; }
-    .countdown-number { font-size: 1.5rem; }
+    .countdown-box-js { width: 65px; padding: 0.5rem; }
+    .countdown-number-js { font-size: 1.5rem; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -246,7 +246,42 @@ st.markdown('</div>', unsafe_allow_html=True)
 # --- Contagem Regressiva ---
 st.markdown('<div class="countdown-section"><h2>Contagem Regressiva para o Grande Dia</h2></div>', unsafe_allow_html=True)
 wedding_date = datetime.datetime(2026, 9, 5, 16, 0, 0)
-countdown_placeholder = st.empty()
+
+# Componente HTML/JS para a contagem regressiva suave
+countdown_html = f"""
+<div class="countdown-container-js">
+    <div class="countdown-box-js"><span id="days" class="countdown-number-js"></span><span class="countdown-label-js">Dias</span></div>
+    <div class="countdown-box-js"><span id="hours" class="countdown-number-js"></span><span class="countdown-label-js">Horas</span></div>
+    <div class="countdown-box-js"><span id="minutes" class="countdown-number-js"></span><span class="countdown-label-js">Minutos</span></div>
+    <div class="countdown-box-js"><span id="seconds" class="countdown-number-js"></span><span class="countdown-label-js">Segundos</span></div>
+</div>
+
+<script>
+const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
+
+const interval = setInterval(function() {{
+    const now = new Date().getTime();
+    const distance = countdownDate - now;
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById("days").innerText = days;
+    document.getElementById("hours").innerText = hours;
+    document.getElementById("minutes").innerText = minutes;
+    document.getElementById("seconds").innerText = seconds;
+
+    if (distance < 0) {{
+        clearInterval(interval);
+        document.querySelector(".countdown-container-js").innerHTML = '<span style="font-size: 1.5rem; font-weight: bold; color: #d81b60;">Feliz Casamento!</span>';
+    }}
+}}, 1000);
+</script>
+"""
+components.html(countdown_html, height=130)
+
 
 # --- Layout do Checklist ---
 st.subheader("Nosso Checklist Detalhado")
@@ -306,33 +341,4 @@ st.markdown("""
     <p class="footer-subtext">Cada tarefa completada nos aproxima do nosso sonho realizado ❤️</p>
 </div>
 """, unsafe_allow_html=True)
-
-# --- LÓGICA DA CONTAGEM REGRESSIVA (SUAVE) ---
-if "countdown_values" not in st.session_state:
-    st.session_state.countdown_values = {"d": 0, "h": 0, "m": 0, "s": 0}
-
-now = datetime.datetime.now()
-remaining = wedding_date - now
-
-if remaining.total_seconds() > 0:
-    days, r_seconds = remaining.days, remaining.seconds
-    hours = r_seconds // 3600
-    minutes = (r_seconds % 3600) // 60
-    seconds = r_seconds % 60
-    st.session_state.countdown_values = {"d": days, "h": hours, "m": minutes, "s": seconds}
-
-with countdown_placeholder.container():
-    cv = st.session_state.countdown_values
-    if remaining.total_seconds() < 0:
-        st.markdown('<div class="countdown-container"><span style="font-size: 2rem; font-weight: bold; color: #d81b60;">Feliz Casamento!</span></div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div class="countdown-container">
-            <div class="countdown-box"><span class="countdown-number">{cv['d']}</span><span class="countdown-label">Dias</span></div>
-            <div class="countdown-box"><span class="countdown-number">{cv['h']}</span><span class="countdown-label">Horas</span></div>
-            <div class="countdown-box"><span class="countdown-number">{cv['m']}</span><span class="countdown-label">Minutos</span></div>
-            <div class="countdown-box"><span class="countdown-number">{cv['s']}</span><span class="countdown-label">Segundos</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-    st_autorefresh(interval=1000, key="countdownrefresh")
 
