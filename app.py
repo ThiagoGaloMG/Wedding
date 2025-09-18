@@ -59,16 +59,208 @@ body { background-color: #fff9fb; }
 .sync-error { background-color: #f8d7da; color: #721c24; }
 .sync-loading { background-color: #fff3cd; color: #856404; }
 
-/* --- CONTAGEM REGRESSIVA (Estilos para o componente HTML) --- */
-.countdown-section h2 { text-align: center; font-weight: 600; color: #333; font-size: 1.5rem; }
-.countdown-container-js {
-    display: flex; justify-content: center; gap: 1rem; text-align: center; padding: 1.5rem;
-    background: linear-gradient(135deg, #fff1f5, #ffe6ec); border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid rgba(255, 255, 255, 0.9);
+/* --- CONTAGEM REGRESSIVA ROMÂNTICA --- */
+.countdown-section { 
+    text-align: center; 
+    margin: 3rem 0; 
+    background: linear-gradient(135deg, #fff0f3 0%, #ffe0e6 50%, #fff5f8 100%);
+    padding: 2.5rem;
+    border-radius: 25px;
+    box-shadow: 0 8px 32px rgba(194, 24, 91, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
 }
-.countdown-box-js { background-color: rgba(255, 255, 255, 0.5); padding: 0.8rem; border-radius: 10px; width: 80px; }
-.countdown-number-js { font-size: 2rem; font-weight: bold; color: #d81b60; }
-.countdown-label-js { font-size: 0.7rem; text-transform: uppercase; color: #666; }
+
+.countdown-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(194, 24, 91, 0.03) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.countdown-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #c2185b;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.countdown-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.countdown-container-modern {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    flex-wrap: wrap;
+}
+
+.countdown-item {
+    background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+    min-width: 100px;
+    box-shadow: 
+        0 8px 25px rgba(194, 24, 91, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(194, 24, 91, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.countdown-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(194, 24, 91, 0.25);
+}
+
+.countdown-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #e91e63, #ff4081, #c2185b);
+}
+
+.countdown-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #c2185b;
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.countdown-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    font-weight: 500;
+}
+
+.countdown-hearts {
+    margin-top: 1.5rem;
+    font-size: 1.5rem;
+    opacity: 0.7;
+    animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.countdown-celebration {
+    font-family: 'Dancing Script', cursive;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #c2185b;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: celebrate 2s ease-in-out infinite;
+}
+
+@keyframes celebrate {
+    0%, 100% { transform: scale(1) rotate(-2deg); }
+    50% { transform: scale(1.05) rotate(2deg); }
+}
+
+/* --- ELEMENTOS ROMÂNTICOS EXTRAS --- */
+.romantic-quote {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(194, 24, 91, 0.05) 0%, rgba(255, 192, 203, 0.05) 100%);
+    border-radius: 15px;
+    border-left: 4px solid #c2185b;
+}
+
+.romantic-quote p {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.8rem;
+    color: #c2185b;
+    font-style: italic;
+    margin: 0;
+}
+
+.romantic-quote small {
+    font-family: 'Montserrat', sans-serif;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.floating-hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.floating-heart {
+    position: absolute;
+    font-size: 1.5rem;
+    color: rgba(194, 24, 91, 0.1);
+    animation: float 15s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.milestone-achievement {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+    border: 2px solid #ffa726;
+    border-radius: 15px;
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 167, 38, 0.2);
+}
 
 /* --- CHECKLIST --- */
 .stExpander {
@@ -106,9 +298,14 @@ body { background-color: #fff9fb; }
 def init_supabase():
     """Inicializa a conexão com o Supabase"""
     try:
+        # Tenta primeiro a configuração nova (direta)
         if "supabase_url" in st.secrets and "supabase_key" in st.secrets:
             url = st.secrets["supabase_url"]
             key = st.secrets["supabase_key"]
+        # Depois tenta a configuração com [general]
+        elif "general" in st.secrets and "supabase_url" in st.secrets.general:
+            url = st.secrets.general["supabase_url"]
+            key = st.secrets.general["supabase_key"]
             supabase_client = create_client(url, key)
             
             # Testa a conexão
@@ -397,6 +594,59 @@ def generate_printable_html(checklist):
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
 st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>', unsafe_allow_html=True)
 
+# --- CORAÇÕES FLUTUANTES ---
+st.markdown("""
+<div class="floating-hearts" id="floating-hearts"></div>
+<script>
+function createFloatingHeart() {
+    const heartsContainer = document.getElementById('floating-hearts');
+    if (!heartsContainer) return;
+    
+    const heart = document.createElement('div');
+    heart.className = 'floating-heart';
+    heart.innerHTML = Math.random() > 0.5 ? '💕' : '💖';
+    heart.style.left = Math.random() * 100 + '%';
+    heart.style.animationDelay = Math.random() * 5 + 's';
+    heart.style.animationDuration = (8 + Math.random() * 4) + 's';
+    
+    heartsContainer.appendChild(heart);
+    
+    // Remove o coração após a animação
+    setTimeout(() => {
+        if (heart.parentNode) {
+            heart.parentNode.removeChild(heart);
+        }
+    }, 12000);
+}
+
+// Cria corações periodicamente
+setInterval(createFloatingHeart, 3000);
+// Cria alguns corações iniciais
+for(let i = 0; i < 3; i++) {
+    setTimeout(createFloatingHeart, i * 1000);
+}
+</script>
+""", unsafe_allow_html=True)
+
+# --- FRASE ROMÂNTICA ---
+romantic_quotes = [
+    "O amor não se vê com os olhos, mas com o coração.",
+    "Duas almas, um só coração.",
+    "O amor verdadeiro nunca tem fim.",
+    "Juntos somos mais fortes, unidos somos eternos.",
+    "Cada dia ao seu lado é um presente."
+]
+
+import random
+today_quote = random.choice(romantic_quotes)
+
+st.markdown(f"""
+<div class="romantic-quote">
+    <p>"{today_quote}"</p>
+    <small>— Frase do dia para nosso amor —</small>
+</div>
+""", unsafe_allow_html=True)
+
 # --- STATUS DE CONEXÃO ---
 col1, col2, col3 = st.columns([2, 1, 1])
 with col1:
@@ -435,48 +685,71 @@ st.progress(progress)
 st.markdown(f"<p class='progress-subtext'>{completed_tasks} de {total_tasks} tarefas concluídas ({progress:.0%})</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Contagem Regressiva ---
-st.markdown('<div class="countdown-section"><h2>Contagem Regressiva para o Grande Dia</h2></div>', unsafe_allow_html=True)
+# --- Contagem Regressiva Romântica ---
+st.markdown("""
+<div class="countdown-section">
+    <h2 class="countdown-title">Contagem Regressiva para o Grande Dia</h2>
+    <p class="countdown-subtitle">Cada segundo nos aproxima do nosso "Sim" eterno</p>
+    <div id="countdown-container"></div>
+    <div class="countdown-hearts">💕 ✨ 💕 ✨ 💕</div>
+</div>
+""", unsafe_allow_html=True)
+
 wedding_date = datetime.datetime(2026, 9, 5, 16, 0, 0)
 
 countdown_html = f"""
-<div class="countdown-container-js">
-    <div class="countdown-box-js"><span id="days" class="countdown-number-js"></span><span class="countdown-label-js">Dias</span></div>
-    <div class="countdown-box-js"><span id="hours" class="countdown-number-js"></span><span class="countdown-label-js">Horas</span></div>
-    <div class="countdown-box-js"><span id="minutes" class="countdown-number-js"></span><span class="countdown-label-js">Minutos</span></div>
-    <div class="countdown-box-js"><span id="seconds" class="countdown-number-js"></span><span class="countdown-label-js">Segundos</span></div>
-</div>
 <script>
-const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
-const interval = setInterval(function() {{
+function updateCountdown() {{
+    const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
     const now = new Date().getTime();
     const distance = countdownDate - now;
+    
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    const format = (num) => num < 10 ? '0' + num : num;
-    const daysEl = document.getElementById("days");
-    const hoursEl = document.getElementById("hours");
-    const minutesEl = document.getElementById("minutes");
-    const secondsEl = document.getElementById("seconds");
-    if(daysEl && hoursEl && minutesEl && secondsEl) {{
-        daysEl.innerText = days;
-        hoursEl.innerText = format(hours);
-        minutesEl.innerText = format(minutes);
-        secondsEl.innerText = format(seconds);
+    
+    const container = document.getElementById("countdown-container");
+    
+    if (distance > 0) {{
+        container.innerHTML = `
+            <div class="countdown-container-modern">
+                <div class="countdown-item">
+                    <span class="countdown-number">${{days}}</span>
+                    <span class="countdown-label">Dias</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number">${{hours.toString().padStart(2, '0')}}</span>
+                    <span class="countdown-label">Horas</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number">${{minutes.toString().padStart(2, '0')}}</span>
+                    <span class="countdown-label">Minutos</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number">${{seconds.toString().padStart(2, '0')}}</span>
+                    <span class="countdown-label">Segundos</span>
+                </div>
+            </div>
+        `;
+    }} else {{
+        container.innerHTML = `
+            <div class="countdown-celebration">
+                🎉 Feliz Casamento! 🎉
+                <br>
+                <span style="font-size: 2rem;">Vocês conseguiram! 💕</span>
+            </div>
+        `;
     }}
-    if (distance < 0) {{
-        clearInterval(interval);
-        const container = document.querySelector(".countdown-container-js");
-        if(container) {{
-            container.innerHTML = '<span style="font-size: 1.5rem; font-weight: bold; color: #d81b60;">Feliz Casamento!</span>';
-        }}
-    }}
-}}, 1000);
+}}
+
+// Atualiza imediatamente e depois a cada segundo
+updateCountdown();
+setInterval(updateCountdown, 1000);
 </script>
 """
-components.html(countdown_html, height=130)
+
+components.html(countdown_html, height=200)
 
 # --- Layout do Checklist ---
 st.subheader("📋 Nosso Checklist Detalhado")
@@ -605,41 +878,65 @@ for phase, tasks in st.session_state.checklist.items():
                 else:
                     st.error("Digite o texto da tarefa!")
 
-# --- Estatísticas Finais ---
+# --- Estatísticas Românticas ---
 st.markdown("---")
-st.subheader("📊 Estatísticas do Planejamento")
+st.subheader("💕 Nosso Progresso de Amor")
 
 col1, col2, col3, col4 = st.columns(4)
 
+# Calcula marcos especiais
+days_until_wedding = (wedding_date - datetime.datetime.now()).days
+percentage_complete = progress * 100
+
 with col1:
     st.metric(
-        label="Total de Tarefas",
+        label="💕 Total de Sonhos",
         value=total_tasks,
-        help="Número total de tarefas no checklist"
+        help="Cada tarefa é um passo para realizarmos nossos sonhos"
     )
 
 with col2:
     st.metric(
-        label="Concluídas",
+        label="✨ Sonhos Realizados",
         value=completed_tasks,
-        delta=f"+{completed_tasks}",
-        help="Tarefas já concluídas"
+        delta=f"+{completed_tasks} realizados",
+        help="Tarefas já concluídas com amor"
     )
 
 with col3:
     st.metric(
-        label="Restantes",
+        label="🎯 Faltam Realizar",
         value=total_tasks - completed_tasks,
         delta=f"-{total_tasks - completed_tasks}" if completed_tasks > 0 else None,
-        help="Tarefas ainda pendentes"
+        help="Sonhos ainda por realizar juntos"
     )
 
 with col4:
     st.metric(
-        label="Progresso",
-        value=f"{progress:.0%}",
-        help="Percentual de conclusão geral"
+        label="💖 Progresso do Amor",
+        value=f"{percentage_complete:.0f}%",
+        help="Percentual de conclusão do nosso grande dia"
     )
+
+# Marco especial baseado no progresso
+if percentage_complete >= 75:
+    st.success("🎉 **MARCO ESPECIAL**: Vocês estão quase lá! Menos de 25% para o grande dia!")
+elif percentage_complete >= 50:
+    st.info("💫 **MARCO ESPECIAL**: Metade do caminho percorrido! Vocês estão indo muito bem!")
+elif percentage_complete >= 25:
+    st.info("🌟 **MARCO ESPECIAL**: Um quarto do planejamento concluído! Continuem assim!")
+else:
+    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!"
+
+# Dias especiais até o casamento
+if days_until_wedding > 365:
+    st.info(f"📅 Ainda temos **{days_until_wedding // 365} ano(s)** para planejar cada detalhe com amor!")
+elif days_until_wedding > 30:
+    st.info(f"📅 Faltam apenas **{days_until_wedding}** dias para nosso grande dia!")
+elif days_until_wedding > 0:
+    st.warning(f"🔥 **RETA FINAL!** Apenas **{days_until_wedding}** dias para o casamento!")
+else:
+    st.success("💒 **É HOJE!** O grande dia chegou!")
 
 # --- Próximas Tarefas Importantes ---
 st.subheader("⚡ Próximas Tarefas Prioritárias")
