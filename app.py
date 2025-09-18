@@ -1,10 +1,10 @@
-# Lembre-se de criar o arquivo requirements.txt para que esta linha funcione!
+# Lembre-se de atualizar o arquivo requirements.txt para que esta linha funcione!
 import streamlit as st
 import datetime
 import streamlit.components.v1 as components
 import json
-import firebase_admin
-from firebase_admin import credentials, firestore
+from supabase import create_client, Client
+import time
 
 # --- Configuração da Página ---
 st.set_page_config(
@@ -44,6 +44,20 @@ body { background-color: #fff9fb; }
 .progress-section { text-align: center; margin-bottom: 2rem; }
 .progress-text { font-size: 1.2rem; font-weight: 600; color: #c2185b; }
 .progress-subtext { color: #666; }
+
+/* --- STATUS DE SINCRONIZAÇÃO --- */
+.sync-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 0.5rem;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    z-index: 1000;
+}
+.sync-success { background-color: #d4edda; color: #155724; }
+.sync-error { background-color: #f8d7da; color: #721c24; }
+.sync-loading { background-color: #fff3cd; color: #856404; }
 
 /* --- CONTAGEM REGRESSIVA (Estilos para o componente HTML) --- */
 .countdown-section h2 { text-align: center; font-weight: 600; color: #333; font-size: 1.5rem; }
@@ -87,28 +101,23 @@ body { background-color: #fff9fb; }
 </style>
 """, unsafe_allow_html=True)
 
-
-# --- CONFIGURAÇÃO DO FIREBASE (Segura para o Streamlit) ---
+# --- CONFIGURAÇÃO DO SUPABASE ---
 @st.cache_resource
-def init_firebase():
+def init_supabase():
     try:
-        # Verifica se as credenciais estão nos segredos do Streamlit
-        if "firebase_credentials" in st.secrets:
-            creds_json = json.loads(st.secrets["firebase_credentials"])
-            cred = credentials.Certificate(creds_json)
-            # Evita reinicializar o app se já estiver inicializado
-            if not firebase_admin._apps:
-                firebase_admin.initialize_app(cred)
-            return firestore.client()
+        if "supabase_url" in st.secrets and "supabase_key" in st.secrets:
+            url = st.secrets["supabase_url"]
+            key = st.secrets["supabase_key"]
+            return create_client(url, key)
         else:
-            st.error("As credenciais do Firebase não foram encontradas nos segredos do Streamlit.")
+            st.error("⚠️ As credenciais do Supabase não foram encontradas nos segredos do Streamlit.")
             return None
     except Exception as e:
-        st.error(f"Falha ao conectar com o Firebase: {e}")
+        st.error(f"Falha ao conectar com o Supabase: {e}")
         return None
 
-db = init_firebase()
-CHECKLIST_ID = "daniela_thiago_2026" # ID único para o checklist de vocês
+supabase = init_supabase()
+CHECKLIST_ID = "daniela_thiago_2026"
 
 # --- DADOS INICIAIS DO CHECKLIST ---
 initial_checklist_data = {
@@ -170,43 +179,37 @@ initial_checklist_data = {
     ],
 }
 
-# --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST COM FIREBASE ---
-@st.cache_data(ttl=30) # Cache para evitar leituras excessivas
-def get_checklist_from_firestore():
-    if db:
-        doc_ref = db.collection("checklists").document(CHECKLIST_ID)
-        doc = doc_ref.get()
-        if doc.exists:
-            return doc.to_dict()
-        else: # Se não existe, cria o documento inicial
-            save_checklist_to_firestore(initial_checklist_data)
+# --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST COM SUPABASE ---
+@st.cache_data(ttl=30)
+def get_checklist_from_supabase():
+    if supabase:
+        try:
+            response = supabase.table("checklists").select("data").eq("id", CHECKLIST_ID).single().execute()
+            return response.data["data"]
+        except Exception:
+            save_checklist_to_supabase(initial_checklist_data)
             return initial_checklist_data
     return initial_checklist_data
 
-def save_checklist_to_firestore(data):
-    if db:
-        # Garante que os dados estão em formato compatível com JSON
+def save_checklist_to_supabase(data):
+    if supabase:
         clean_data = json.loads(json.dumps(data))
-        doc_ref = db.collection("checklists").document(CHECKLIST_ID)
-        doc_ref.set(clean_data)
+        supabase.table("checklists").upsert({"id": CHECKLIST_ID, "data": clean_data}).execute()
 
-# Carrega os dados no início
 if 'checklist' not in st.session_state:
-    st.session_state.checklist = get_checklist_from_firestore()
+    st.session_state.checklist = get_checklist_from_supabase()
 
 if 'editing_task' not in st.session_state:
     st.session_state.editing_task = None
 
-
-# --- FUNÇÕES DE MANIPULAÇÃO LOCAL (que chamam o save) ---
 def add_task(phase, text):
     new_task = {'id': f'custom_{datetime.datetime.now().timestamp()}', 'text': text, 'checked': False}
     st.session_state.checklist[phase].append(new_task)
-    save_checklist_to_firestore(st.session_state.checklist)
+    save_checklist_to_supabase(st.session_state.checklist)
 
 def delete_task(phase, task_id):
     st.session_state.checklist[phase] = [t for t in st.session_state.checklist[phase] if t['id'] != task_id]
-    save_checklist_to_firestore(st.session_state.checklist)
+    save_checklist_to_supabase(st.session_state.checklist)
 
 def update_task_text(phase, task_id, new_text):
     for task in st.session_state.checklist[phase]:
@@ -214,16 +217,15 @@ def update_task_text(phase, task_id, new_text):
             task['text'] = new_text
             break
     st.session_state.editing_task = None
-    save_checklist_to_firestore(st.session_state.checklist)
+    save_checklist_to_supabase(st.session_state.checklist)
 
 def update_task_status(phase, task_id, status):
      for task in st.session_state.checklist[phase]:
         if task['id'] == task_id:
             task['checked'] = status
             break
-     save_checklist_to_firestore(st.session_state.checklist)
+     save_checklist_to_supabase(st.session_state.checklist)
 
-# --- FUNÇÃO PARA GERAR HTML PARA IMPRESSÃO ---
 def generate_printable_html(checklist):
     html = f"""
     <html>
@@ -261,7 +263,6 @@ def generate_printable_html(checklist):
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
 st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>', unsafe_allow_html=True)
 
-# --- BOTÃO DE EXPORTAR ---
 printable_html = generate_printable_html(st.session_state.checklist)
 st.download_button(
     label="Exportar para Impressão 🖨️",
@@ -273,7 +274,6 @@ st.download_button(
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- Barra de Progresso Geral ---
 total_tasks = sum(1 for phase_tasks in st.session_state.checklist.values() for task in phase_tasks if not task.get('is_note'))
 completed_tasks = sum(1 for phase_tasks in st.session_state.checklist.values() for task in phase_tasks if task.get('checked'))
 progress = completed_tasks / total_tasks if total_tasks > 0 else 0
@@ -284,11 +284,9 @@ st.progress(progress)
 st.markdown(f"<p class='progress-subtext'>{completed_tasks} de {total_tasks} tarefas concluídas ({progress:.0%})</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Contagem Regressiva ---
 st.markdown('<div class="countdown-section"><h2>Contagem Regressiva para o Grande Dia</h2></div>', unsafe_allow_html=True)
 wedding_date = datetime.datetime(2026, 9, 5, 16, 0, 0)
 
-# Componente HTML/JS para a contagem regressiva suave
 countdown_html = f"""
 <div class="countdown-container-js">
     <div class="countdown-box-js"><span id="days" class="countdown-number-js"></span><span class="countdown-label-js">Dias</span></div>
@@ -328,10 +326,9 @@ const interval = setInterval(function() {{
 """
 components.html(countdown_html, height=130)
 
-# --- Layout do Checklist ---
 st.subheader("Nosso Checklist Detalhado")
 
-if not db:
+if not supabase:
     st.warning("A conexão com o banco de dados falhou. As alterações não serão salvas online.")
 
 for phase, tasks in st.session_state.checklist.items():
@@ -376,10 +373,10 @@ for phase, tasks in st.session_state.checklist.items():
                     st.rerun()
         
         st.markdown("---")
-        new_task_text = st.text_input("Nova tarefa", key=f"new_task_{phase}", placeholder="Adicionar nova tarefa nesta fase...")
+        new_text = st.text_input("Nova tarefa", key=f"new_task_{phase}", placeholder="Adicionar nova tarefa nesta fase...")
         if st.button("Adicionar Tarefa", key=f"add_btn_{phase}"):
-            if new_task_text:
-                add_task(phase, new_task_text)
+            if new_text:
+                add_task(phase, new_text)
                 st.rerun()
 
 # --- Rodapé ---
