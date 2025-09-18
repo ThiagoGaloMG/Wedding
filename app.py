@@ -337,8 +337,16 @@ def show_sync_status(status, message=""):
     elif status == "loading":
         st.markdown(f'<div class="sync-status sync-loading">⏳ Sincronizando... {message}</div>', unsafe_allow_html=True)
 
-# Inicializa o Supabase
+# --- STATUS DE CONEXÃO COM DEBUG ---
+st.markdown("### 🔗 Status da Conexão")
 supabase = init_supabase()
+
+if supabase:
+    st.success("🔄 Conectado - Alterações são sincronizadas automaticamente!")
+else:
+    st.warning("⚠️ Modo Offline - Alterações não serão salvas permanentemente")
+    st.info("Para conectar ao Supabase, verifique as credenciais nos secrets")
+
 CHECKLIST_ID = "daniela_thiago_2026"
 
 # --- DADOS INICIAIS DO CHECKLIST ---
@@ -660,7 +668,8 @@ with col1:
 with col2:
     if st.button("🔄 Recarregar Dados", help="Recarrega os dados do servidor"):
         st.session_state.checklist = get_checklist_from_supabase()
-        show_sync_status("success", "Dados recarregados!")
+        if supabase:
+            show_sync_status("success", "Dados recarregados!")
         st.rerun()
 
 with col3:
@@ -928,7 +937,7 @@ elif percentage_complete >= 50:
 elif percentage_complete >= 25:
     st.info("🌟 **MARCO ESPECIAL**: Um quarto do planejamento concluído! Continuem assim!")
 else:
-    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!")
+    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!"
 
 # Dias especiais até o casamento
 if days_until_wedding > 365:
