@@ -104,18 +104,39 @@ body { background-color: #fff9fb; }
 # --- CONFIGURAÇÃO DO SUPABASE ---
 @st.cache_resource
 def init_supabase():
+    """Inicializa a conexão com o Supabase"""
     try:
         if "supabase_url" in st.secrets and "supabase_key" in st.secrets:
             url = st.secrets["supabase_url"]
             key = st.secrets["supabase_key"]
-            return create_client(url, key)
+            supabase_client = create_client(url, key)
+            
+            # Testa a conexão
+            try:
+                supabase_client.table("checklists").select("id").limit(1).execute()
+                return supabase_client
+            except Exception as e:
+                st.error(f"Erro ao testar conexão com Supabase: {e}")
+                return None
+                
         else:
             st.error("⚠️ As credenciais do Supabase não foram encontradas nos segredos do Streamlit.")
+            st.info("Configure as variáveis SUPABASE_URL e SUPABASE_KEY nos secrets do Streamlit.")
             return None
     except Exception as e:
         st.error(f"Falha ao conectar com o Supabase: {e}")
         return None
 
+def show_sync_status(status, message=""):
+    """Exibe o status de sincronização"""
+    if status == "success":
+        st.markdown(f'<div class="sync-status sync-success">✅ Sincronizado {message}</div>', unsafe_allow_html=True)
+    elif status == "error":
+        st.markdown(f'<div class="sync-status sync-error">❌ Erro na sincronização {message}</div>', unsafe_allow_html=True)
+    elif status == "loading":
+        st.markdown(f'<div class="sync-status sync-loading">⏳ Sincronizando... {message}</div>', unsafe_allow_html=True)
+
+# Inicializa o Supabase
 supabase = init_supabase()
 CHECKLIST_ID = "daniela_thiago_2026"
 
@@ -180,74 +201,185 @@ initial_checklist_data = {
 }
 
 # --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST COM SUPABASE ---
-@st.cache_data(ttl=30)
 def get_checklist_from_supabase():
-    if supabase:
-        try:
-            response = supabase.table("checklists").select("data").eq("id", CHECKLIST_ID).single().execute()
-            return response.data["data"]
-        except Exception:
+    """Carrega o checklist do Supabase"""
+    if not supabase:
+        return initial_checklist_data
+        
+    try:
+        response = supabase.table("checklists").select("data, updated_at").eq("id", CHECKLIST_ID).execute()
+        
+        if response.data:
+            return response.data[0]["data"]
+        else:
+            # Se não encontrar, cria o registro inicial
             save_checklist_to_supabase(initial_checklist_data)
             return initial_checklist_data
-    return initial_checklist_data
+            
+    except Exception as e:
+        st.error(f"Erro ao carregar dados do Supabase: {e}")
+        return initial_checklist_data
 
 def save_checklist_to_supabase(data):
-    if supabase:
+    """Salva o checklist no Supabase"""
+    if not supabase:
+        return False
+        
+    try:
+        # Limpa os dados para evitar problemas de serialização
         clean_data = json.loads(json.dumps(data))
-        supabase.table("checklists").upsert({"id": CHECKLIST_ID, "data": clean_data}).execute()
+        
+        # Adiciona timestamp para controle de versão
+        timestamp = datetime.datetime.now().isoformat()
+        
+        response = supabase.table("checklists").upsert({
+            "id": CHECKLIST_ID,
+            "data": clean_data,
+            "updated_at": timestamp
+        }).execute()
+        
+        return True
+        
+    except Exception as e:
+        st.error(f"Erro ao salvar no Supabase: {e}")
+        return False
 
+def auto_refresh_data():
+    """Verifica se há atualizações no Supabase e recarrega automaticamente"""
+    if not supabase:
+        return
+        
+    try:
+        response = supabase.table("checklists").select("updated_at").eq("id", CHECKLIST_ID).execute()
+        
+        if response.data:
+            server_timestamp = response.data[0]["updated_at"]
+            
+            # Compara com o timestamp local (se existir)
+            if 'last_sync' not in st.session_state:
+                st.session_state.last_sync = server_timestamp
+                
+            if server_timestamp != st.session_state.last_sync:
+                # Dados foram atualizados, recarrega
+                st.session_state.checklist = get_checklist_from_supabase()
+                st.session_state.last_sync = server_timestamp
+                show_sync_status("success", "Dados atualizados!")
+                time.sleep(1)
+                st.rerun()
+                
+    except Exception:
+        pass
+
+# --- INICIALIZAÇÃO DOS DADOS ---
+# Carrega os dados no início se não estiverem em cache
 if 'checklist' not in st.session_state:
     st.session_state.checklist = get_checklist_from_supabase()
 
 if 'editing_task' not in st.session_state:
     st.session_state.editing_task = None
 
+if 'last_sync' not in st.session_state:
+    st.session_state.last_sync = None
+
+# Verificação automática de atualizações (a cada 30 segundos)
+if st.session_state.get('auto_refresh_time', 0) < time.time() - 30:
+    st.session_state.auto_refresh_time = time.time()
+    auto_refresh_data()
+
+# --- FUNÇÕES DE MANIPULAÇÃO LOCAL ---
 def add_task(phase, text):
-    new_task = {'id': f'custom_{datetime.datetime.now().timestamp()}', 'text': text, 'checked': False}
+    """Adiciona uma nova tarefa"""
+    new_task = {
+        'id': f'custom_{datetime.datetime.now().timestamp()}', 
+        'text': text, 
+        'checked': False
+    }
     st.session_state.checklist[phase].append(new_task)
-    save_checklist_to_supabase(st.session_state.checklist)
+    
+    if save_checklist_to_supabase(st.session_state.checklist):
+        show_sync_status("success", "Tarefa adicionada!")
+    else:
+        show_sync_status("error", "Falha ao salvar")
 
 def delete_task(phase, task_id):
-    st.session_state.checklist[phase] = [t for t in st.session_state.checklist[phase] if t['id'] != task_id]
-    save_checklist_to_supabase(st.session_state.checklist)
+    """Remove uma tarefa"""
+    st.session_state.checklist[phase] = [
+        t for t in st.session_state.checklist[phase] 
+        if t['id'] != task_id
+    ]
+    
+    if save_checklist_to_supabase(st.session_state.checklist):
+        show_sync_status("success", "Tarefa removida!")
+    else:
+        show_sync_status("error", "Falha ao salvar")
 
 def update_task_text(phase, task_id, new_text):
+    """Atualiza o texto de uma tarefa"""
     for task in st.session_state.checklist[phase]:
         if task['id'] == task_id:
             task['text'] = new_text
             break
+            
     st.session_state.editing_task = None
-    save_checklist_to_supabase(st.session_state.checklist)
+    
+    if save_checklist_to_supabase(st.session_state.checklist):
+        show_sync_status("success", "Tarefa atualizada!")
+    else:
+        show_sync_status("error", "Falha ao salvar")
 
 def update_task_status(phase, task_id, status):
-     for task in st.session_state.checklist[phase]:
+    """Atualiza o status de uma tarefa"""
+    for task in st.session_state.checklist[phase]:
         if task['id'] == task_id:
             task['checked'] = status
             break
-     save_checklist_to_supabase(st.session_state.checklist)
+            
+    if save_checklist_to_supabase(st.session_state.checklist):
+        show_sync_status("success", "✓" if status else "○")
+    else:
+        show_sync_status("error", "Falha ao salvar")
 
+# --- FUNÇÃO PARA GERAR HTML PARA IMPRESSÃO ---
 def generate_printable_html(checklist):
+    """Gera HTML para impressão"""
     html = f"""
     <html>
     <head>
         <title>Checklist Casamento - Daniela & Thiago</title>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;600&display=swap');
-            body {{ font-family: 'Montserrat', sans-serif; padding: 20px; }}
+            body {{ font-family: 'Montserrat', sans-serif; padding: 20px; line-height: 1.6; }}
             h1 {{ font-family: 'Dancing Script', cursive; font-size: 3rem; color: #c2185b; text-align: center; }}
             h2 {{ font-family: 'Montserrat', sans-serif; color: #333; border-bottom: 2px solid #f1f1f1; padding-bottom: 5px; }}
             ul {{ list-style-type: none; padding-left: 0; }}
             li {{ margin-bottom: 10px; font-size: 1.1rem; }}
             .checked {{ text-decoration: line-through; color: #aaa; }}
             .note {{ background-color: #fffbe6; border-left: 5px solid #ffe58f; padding: 10px; margin: 10px 0; }}
+            .progress {{ text-align: right; font-size: 0.9rem; color: #666; margin-bottom: 10px; }}
+            .generated-date {{ text-align: center; color: #666; font-size: 0.9rem; margin-top: 2rem; }}
         </style>
     </head>
     <body>
         <h1>✨ Daniela & Thiago ✨</h1>
+        <p style="text-align: center; font-size: 1.1rem; color: #555;">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>
         <hr>
     """
+    
+    total_tasks = sum(1 for phase_tasks in checklist.values() for task in phase_tasks if not task.get('is_note'))
+    completed_tasks = sum(1 for phase_tasks in checklist.values() for task in phase_tasks if task.get('checked'))
+    overall_progress = completed_tasks / total_tasks if total_tasks > 0 else 0
+    
+    html += f"<div class='progress'>Progresso Geral: {completed_tasks}/{total_tasks} ({overall_progress:.0%})</div>"
+    
     for phase, tasks in checklist.items():
-        html += f"<h2>{phase}</h2><ul>"
+        phase_total = sum(1 for t in tasks if not t.get('is_note'))
+        phase_completed = sum(1 for t in tasks if t.get('checked'))
+        phase_progress = phase_completed / phase_total if phase_total > 0 else 0
+        
+        html += f"<h2>{phase}</h2>"
+        html += f"<div class='progress'>Progresso da fase: {phase_completed}/{phase_total} ({phase_progress:.0%})</div>"
+        html += "<ul>"
+        
         for task in tasks:
             if task.get('is_note'):
                 html += f"<li class='note'>{task['text']}</li>"
@@ -256,6 +388,8 @@ def generate_printable_html(checklist):
                 checkbox = "☑" if task.get('checked') else "☐"
                 html += f"<li class='{checked_class}'>{checkbox} {task['text']}</li>"
         html += "</ul>"
+    
+    html += f"<div class='generated-date'>Gerado em: {datetime.datetime.now().strftime('%d/%m/%Y às %H:%M')}</div>"
     html += "</body></html>"
     return html
 
@@ -263,17 +397,34 @@ def generate_printable_html(checklist):
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
 st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>', unsafe_allow_html=True)
 
-printable_html = generate_printable_html(st.session_state.checklist)
-st.download_button(
-    label="Exportar para Impressão 🖨️",
-    data=printable_html,
-    file_name="checklist_casamento_daniela_thiago.html",
-    mime="text/html",
-    use_container_width=True
-)
+# --- STATUS DE CONEXÃO ---
+col1, col2, col3 = st.columns([2, 1, 1])
+with col1:
+    if supabase:
+        st.success("🔄 Conectado - Alterações são sincronizadas automaticamente!")
+    else:
+        st.warning("⚠️ Modo Offline - Alterações não serão salvas")
+
+with col2:
+    if st.button("🔄 Recarregar Dados", help="Recarrega os dados do servidor"):
+        st.session_state.checklist = get_checklist_from_supabase()
+        show_sync_status("success", "Dados recarregados!")
+        st.rerun()
+
+with col3:
+    # --- BOTÃO DE EXPORTAR ---
+    printable_html = generate_printable_html(st.session_state.checklist)
+    st.download_button(
+        label="📄 Exportar PDF",
+        data=printable_html,
+        file_name=f"checklist_casamento_{datetime.datetime.now().strftime('%Y%m%d')}.html",
+        mime="text/html",
+        help="Baixe o HTML e abra no navegador para imprimir como PDF"
+    )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
+# --- Barra de Progresso Geral ---
 total_tasks = sum(1 for phase_tasks in st.session_state.checklist.values() for task in phase_tasks if not task.get('is_note'))
 completed_tasks = sum(1 for phase_tasks in st.session_state.checklist.values() for task in phase_tasks if task.get('checked'))
 progress = completed_tasks / total_tasks if total_tasks > 0 else 0
@@ -284,6 +435,7 @@ st.progress(progress)
 st.markdown(f"<p class='progress-subtext'>{completed_tasks} de {total_tasks} tarefas concluídas ({progress:.0%})</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# --- Contagem Regressiva ---
 st.markdown('<div class="countdown-section"><h2>Contagem Regressiva para o Grande Dia</h2></div>', unsafe_allow_html=True)
 wedding_date = datetime.datetime(2026, 9, 5, 16, 0, 0)
 
@@ -326,64 +478,222 @@ const interval = setInterval(function() {{
 """
 components.html(countdown_html, height=130)
 
-st.subheader("Nosso Checklist Detalhado")
+# --- Layout do Checklist ---
+st.subheader("📋 Nosso Checklist Detalhado")
 
-if not supabase:
-    st.warning("A conexão com o banco de dados falhou. As alterações não serão salvas online.")
+# Informações sobre sincronização
+if supabase:
+    st.info("💡 **Dica**: As alterações são salvas automaticamente e sincronizadas entre vocês dois em tempo real!")
+else:
+    st.error("⚠️ **Atenção**: Sem conexão com o banco de dados. Configure as credenciais do Supabase nos secrets.")
 
 for phase, tasks in st.session_state.checklist.items():
     with st.expander(f"🗓️ {phase}", expanded=False):
+        # Cálculo do progresso da fase
         phase_total = sum(1 for t in tasks if not t.get('is_note'))
         phase_completed = sum(1 for t in tasks if t.get('checked'))
         phase_progress = phase_completed / phase_total if phase_total > 0 else 0
-        st.markdown(f"<p style='text-align: right; font-size: 0.9rem;'>{phase_completed}/{phase_total} ({phase_progress:.0%}) concluído</p>", unsafe_allow_html=True)
-        st.progress(phase_progress)
         
+        # Exibe o progresso da fase
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.progress(phase_progress)
+        with col2:
+            st.markdown(f"<p style='text-align: right; font-size: 0.9rem; margin-top: 10px;'>{phase_completed}/{phase_total} ({phase_progress:.0%})</p>", unsafe_allow_html=True)
+        
+        # Lista as tarefas
         for i, task in enumerate(tasks):
             if task.get('is_note'):
                 st.warning(task['text'])
                 continue
 
             task_id = task['id']
-            cols = st.columns([0.1, 1.8, 0.2, 0.2])
+            cols = st.columns([0.1, 1.6, 0.15, 0.15])
             
+            # Checkbox
             with cols[0]:
-                is_checked = st.checkbox("", value=task.get('checked', False), key=f"cb_{task_id}")
-                if is_checked != task.get('checked', False):
+                current_status = task.get('checked', False)
+                is_checked = st.checkbox(
+                    "", 
+                    value=current_status, 
+                    key=f"cb_{task_id}_{i}",
+                    help="Marcar como concluída"
+                )
+                
+                if is_checked != current_status:
                     update_task_status(phase, task_id, is_checked)
+                    # Pequeno delay para mostrar o status de sincronização
+                    time.sleep(0.5)
                     st.rerun()
 
+            # Texto da tarefa (editável ou não)
             with cols[1]:
                 if st.session_state.editing_task == task_id:
-                    new_text = st.text_input("Editar tarefa", value=task['text'], key=f"edit_{task_id}", label_visibility="collapsed")
-                    if st.button("Salvar", key=f"save_{task_id}"):
-                        update_task_text(phase, task_id, new_text)
-                        st.rerun()
+                    # Modo edição
+                    new_text = st.text_input(
+                        "Editar tarefa", 
+                        value=task['text'], 
+                        key=f"edit_{task_id}",
+                        label_visibility="collapsed",
+                        placeholder="Digite o novo texto da tarefa..."
+                    )
+                    
+                    # Botões de ação para edição
+                    col_save, col_cancel = st.columns(2)
+                    with col_save:
+                        if st.button("💾 Salvar", key=f"save_{task_id}", type="primary"):
+                            if new_text.strip():
+                                update_task_text(phase, task_id, new_text)
+                                st.rerun()
+                            else:
+                                st.error("O texto da tarefa não pode estar vazio!")
+                    
+                    with col_cancel:
+                        if st.button("❌ Cancelar", key=f"cancel_{task_id}"):
+                            st.session_state.editing_task = None
+                            st.rerun()
                 else:
+                    # Modo visualização
                     checked_class = "checked" if task.get('checked') else ""
-                    st.markdown(f"<div class='task-container'><p class='task-text {checked_class}'>❤️ {task['text']}</p></div>", unsafe_allow_html=True)
+                    status_icon = "✅" if task.get('checked') else "⭕"
+                    st.markdown(
+                        f"<div class='task-container'><p class='task-text {checked_class}'>{status_icon} {task['text']}</p></div>", 
+                        unsafe_allow_html=True
+                    )
             
+            # Botão de editar
             with cols[2]:
-                if st.button("✏️", key=f"btn_edit_{task_id}", help="Editar tarefa"):
-                    st.session_state.editing_task = task_id
-                    st.rerun()
+                if st.session_state.editing_task != task_id:
+                    if st.button("✏️", key=f"btn_edit_{task_id}_{i}", help="Editar tarefa"):
+                        st.session_state.editing_task = task_id
+                        st.rerun()
+                        
+            # Botão de excluir
             with cols[3]:
-                if st.button("🗑️", key=f"btn_del_{task_id}", help="Excluir tarefa"):
-                    delete_task(phase, task_id)
-                    st.rerun()
+                if st.session_state.editing_task != task_id:
+                    if st.button("🗑️", key=f"btn_del_{task_id}_{i}", help="Excluir tarefa"):
+                        if st.session_state.get(f"confirm_delete_{task_id}"):
+                            delete_task(phase, task_id)
+                            if f"confirm_delete_{task_id}" in st.session_state:
+                                del st.session_state[f"confirm_delete_{task_id}"]
+                            st.rerun()
+                        else:
+                            st.session_state[f"confirm_delete_{task_id}"] = True
+                            st.warning("⚠️ Clique novamente para confirmar a exclusão!")
+                            st.rerun()
         
+        # Seção para adicionar nova tarefa
         st.markdown("---")
-        new_text = st.text_input("Nova tarefa", key=f"new_task_{phase}", placeholder="Adicionar nova tarefa nesta fase...")
-        if st.button("Adicionar Tarefa", key=f"add_btn_{phase}"):
-            if new_text:
-                add_task(phase, new_text)
-                st.rerun()
+        st.markdown("**➕ Adicionar Nova Tarefa**")
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            new_text = st.text_input(
+                "Nova tarefa", 
+                key=f"new_task_{phase}",
+                placeholder="Digite aqui a nova tarefa para esta fase...",
+                label_visibility="collapsed"
+            )
+        
+        with col2:
+            if st.button("➕ Adicionar", key=f"add_btn_{phase}", type="primary"):
+                if new_text.strip():
+                    add_task(phase, new_text.strip())
+                    # Limpa o campo
+                    st.session_state[f"new_task_{phase}"] = ""
+                    st.rerun()
+                else:
+                    st.error("Digite o texto da tarefa!")
+
+# --- Estatísticas Finais ---
+st.markdown("---")
+st.subheader("📊 Estatísticas do Planejamento")
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.metric(
+        label="Total de Tarefas",
+        value=total_tasks,
+        help="Número total de tarefas no checklist"
+    )
+
+with col2:
+    st.metric(
+        label="Concluídas",
+        value=completed_tasks,
+        delta=f"+{completed_tasks}",
+        help="Tarefas já concluídas"
+    )
+
+with col3:
+    st.metric(
+        label="Restantes",
+        value=total_tasks - completed_tasks,
+        delta=f"-{total_tasks - completed_tasks}" if completed_tasks > 0 else None,
+        help="Tarefas ainda pendentes"
+    )
+
+with col4:
+    st.metric(
+        label="Progresso",
+        value=f"{progress:.0%}",
+        help="Percentual de conclusão geral"
+    )
+
+# --- Próximas Tarefas Importantes ---
+st.subheader("⚡ Próximas Tarefas Prioritárias")
+
+# Encontra tarefas não concluídas que contêm prazos
+priority_tasks = []
+for phase, tasks in st.session_state.checklist.items():
+    for task in tasks:
+        if (not task.get('checked', False) and 
+            not task.get('is_note', False) and
+            ('PRAZO:' in task['text'] or 'ATENÇÃO' in task['text'] or 'URGENTE' in task['text'])):
+            priority_tasks.append((phase, task))
+
+if priority_tasks:
+    for phase, task in priority_tasks[:5]:  # Mostra até 5 tarefas prioritárias
+        st.warning(f"**{phase}**: {task['text']}")
+else:
+    # Se não há tarefas prioritárias, mostra as próximas não concluídas
+    next_tasks = []
+    for phase, tasks in st.session_state.checklist.items():
+        for task in tasks:
+            if not task.get('checked', False) and not task.get('is_note', False):
+                next_tasks.append((phase, task))
+                if len(next_tasks) >= 3:
+                    break
+        if len(next_tasks) >= 3:
+            break
+    
+    if next_tasks:
+        st.info("**Próximas tarefas a fazer:**")
+        for phase, task in next_tasks:
+            st.info(f"• **{phase}**: {task['text']}")
+    else:
+        st.success("🎉 **Parabéns! Todas as tarefas foram concluídas!** 🎉")
+
+# --- Dicas e Lembretes ---
+st.subheader("💡 Dicas Importantes")
+st.info("""
+📝 **Lembretes Importantes:**
+- **Documentos**: Certidões têm prazo de validade (90 dias)
+- **Casamento Civil**: Deve ser realizado ANTES do religioso
+- **Xerox da Certidão Civil**: Entregar na paróquia no mesmo dia
+- **Backup**: Este checklist é salvo automaticamente na nuvem
+- **Sincronização**: As alterações aparecem para ambos em tempo real
+""")
 
 # --- Rodapé ---
+st.markdown("---")
 st.markdown("""
 <div class="footer">
     <p class="footer-text">Juntos para Sempre</p>
     <p class="footer-subtext">Cada tarefa completada nos aproxima do nosso sonho realizado ❤️</p>
+    <p style="font-size: 0.8rem; color: #999; margin-top: 1rem;">
+        💾 Dados salvos automaticamente • 🔄 Sincronização em tempo real
+    </p>
 </div>
 """, unsafe_allow_html=True)
-
