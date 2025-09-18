@@ -595,7 +595,7 @@ st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_al
 st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de 2026 ❤️</p>', unsafe_allow_html=True)
 
 # --- CORAÇÕES FLUTUANTES ---
-st.markdown("""
+floating_hearts_html = """
 <div class="floating-hearts" id="floating-hearts"></div>
 <script>
 function createFloatingHeart() {
@@ -611,7 +611,6 @@ function createFloatingHeart() {
     
     heartsContainer.appendChild(heart);
     
-    // Remove o coração após a animação
     setTimeout(() => {
         if (heart.parentNode) {
             heart.parentNode.removeChild(heart);
@@ -619,14 +618,13 @@ function createFloatingHeart() {
     }, 12000);
 }
 
-// Cria corações periodicamente
-setInterval(createFloatingHeart, 3000);
-// Cria alguns corações iniciais
-for(let i = 0; i < 3; i++) {
-    setTimeout(createFloatingHeart, i * 1000);
+setInterval(createFloatingHeart, 4000);
+for(let i = 0; i < 2; i++) {
+    setTimeout(createFloatingHeart, i * 2000);
 }
 </script>
-""", unsafe_allow_html=True)
+"""
+components.html(floating_hearts_html, height=0)
 
 # --- FRASE ROMÂNTICA ---
 romantic_quotes = [
@@ -926,7 +924,7 @@ elif percentage_complete >= 50:
 elif percentage_complete >= 25:
     st.info("🌟 **MARCO ESPECIAL**: Um quarto do planejamento concluído! Continuem assim!")
 else:
-    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!")
+    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!"
 
 # Dias especiais até o casamento
 if days_until_wedding > 365:
