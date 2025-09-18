@@ -7,7 +7,7 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(
     page_title="Checklist do Casamento | Daniela & Thiago",
     page_icon="💖",
-    layout="wide",
+    layout="centered", # Alterado para 'centered' para melhor legibilidade
     initial_sidebar_state="collapsed",
 )
 
@@ -19,7 +19,7 @@ st.markdown("""
 
 /* --- FUNDO E ESTILOS GERAIS --- */
 body {
-    background-color: #fff9fb; /* Um rosa bem clarinho para o fundo */
+    background-color: #fff9fb;
 }
 
 .stApp {
@@ -32,7 +32,7 @@ body {
 /* --- ESTILOS DO CABEÇALHO --- */
 .wedding-names {
     font-family: 'Dancing Script', cursive;
-    font-size: 5.5rem;
+    font-size: 4.5rem; /* Reduzido para melhor encaixe em mobile */
     font-weight: 700;
     text-align: center;
     color: #c2185b;
@@ -66,50 +66,63 @@ body {
     text-align: center;
     font-weight: 600;
     color: #333;
+    font-size: 1.5rem;
 }
 .countdown-container {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem; /* Espaçamento reduzido para mobile */
     text-align: center;
-    padding: 2rem;
-    background: linear-gradient(135deg, rgba(255, 241, 245, 0.8), rgba(255, 230, 236, 0.8));
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fff1f5, #ffe6ec); /* Fundo sólido */
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     margin-bottom: 2rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.9);
 }
 .countdown-box {
     background-color: rgba(255, 255, 255, 0.5);
-    padding: 1rem;
+    padding: 0.8rem;
     border-radius: 10px;
-    width: 100px;
+    width: 80px;
 }
 .countdown-number {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: bold;
     color: #d81b60;
 }
 .countdown-label {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     color: #666;
 }
 
 /* --- CHECKLIST --- */
 .stExpander {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: #ffffff; /* Fundo branco sólido */
     border: none !important;
     border-radius: 10px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
     margin-bottom: 1rem;
 }
-.stCheckbox > label {
+
+/* Estilo para o texto da tarefa */
+.task-text {
+    margin: 0;
+    padding-top: 8px; /* Alinhamento vertical com a caixinha */
     font-size: 1rem;
+    color: #333; /* Cor mais escura para legibilidade */
+    transition: color 0.3s;
 }
+
+/* Estilo para o texto riscado */
+.task-text.checked {
+    text-decoration: line-through;
+    color: #aaa;
+}
+
 div[data-testid="stCheckbox"] > label > div:first-of-type {
-    border-radius: 50% !important; /* Transforma o checkbox em círculo */
+    border-radius: 50% !important;
     border: 2px solid #e19ab4 !important;
 }
 div[data-testid="stCheckbox"] > label > div:first-of-type[aria-checked="true"] {
@@ -125,7 +138,7 @@ div[data-testid="stCheckbox"] > label > div:first-of-type[aria-checked="true"] {
 .footer {
     text-align: center;
     padding: 2rem;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: #ffffff;
     border-radius: 10px;
     margin-top: 2rem;
 }
@@ -137,22 +150,37 @@ div[data-testid="stCheckbox"] > label > div:first-of-type[aria-checked="true"] {
 .footer-subtext {
     color: #555;
 }
+
+/* Media Query para telas menores (celulares) */
+@media (max-width: 640px) {
+    .wedding-names {
+        font-size: 3.5rem;
+    }
+    .countdown-box {
+        width: 65px;
+        padding: 0.5rem;
+    }
+    .countdown-number {
+        font-size: 1.5rem;
+    }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 
-# --- DADOS DO CHECKLIST (ATUALIZADOS COM NOVAS DATAS E PRAZOS) ---
+# --- DADOS DO CHECKLIST ---
 checklist_data = {
     "Fase 1: 11 a 9 Meses Antes (Out/25 a Dez/25) - Planejamento Inicial": [
         {'id': 'definir-orcamento', 'text': 'Definir o Orçamento Geral do Casamento.'},
         {'id': 'lista-convidados-preliminar', 'text': 'Criar a Lista Preliminar de Convidados.'},
         {'id': 'escolher-padrinhos', 'text': 'Convidar Padrinhos e Madrinhas (máx. 3 casais por noivo).'},
-        {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar data religiosa (05/09/2026).'},
         {'id': 'ponto-atencao-padre', 'text': '❤️ ATENÇÃO ESPECIAL: Agendar conversa com Padre Carlos para alinhar detalhes sobre viuvez e o processo religioso.', 'is_note': True},
         {'id': 'agendar-curso-noivos', 'text': 'Pesquisar e se inscrever no Curso de Noivos (fazer em outra paróquia).'},
         {'id': 'confirmar-salao', 'text': 'Confirmar a reserva do salão anexo da igreja para a recepção.'},
     ],
     "Fase 2: 8 a 6 Meses Antes (Jan/26 a Mar/26) - Contratando Fornecedores": [
+        {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar data religiosa (05/09/2026).'},
         {'id': 'foto-video', 'text': 'Conversar e fechar com a amiga fotógrafa (repassar regras da igreja).'},
         {'id': 'musica-cerimonia', 'text': 'Conversar e fechar com os amigos músicos (repertório apenas religioso).'},
         {'id': 'decoracao', 'text': 'Contratar florista/decoração (repassar regras: 4 arranjos, etc.).'},
@@ -208,6 +236,34 @@ checklist_data = {
 if 'tasks_status' not in st.session_state:
     st.session_state.tasks_status = {task['id']: False for phase in checklist_data.values() for task in phase if not task.get('is_note')}
 
+# --- Função para renderizar uma tarefa (com texto riscado) ---
+def render_task(task):
+    task_id = task['id']
+    is_note = task.get('is_note', False)
+
+    if is_note:
+        st.warning(task['text'])
+        return
+
+    # Garante que a tarefa tenha um estado inicial
+    if task_id not in st.session_state.tasks_status:
+        st.session_state.tasks_status[task_id] = False
+    
+    # Usa colunas para alinhar checkbox e texto
+    col1, col2 = st.columns([0.1, 2.5])
+
+    with col1:
+        # O st.checkbox atualiza o estado da sessão
+        is_checked = st.checkbox("", value=st.session_state.tasks_status[task_id], key=f"cb_{task_id}")
+        st.session_state.tasks_status[task_id] = is_checked
+
+    with col2:
+        # Aplica a classe CSS 'checked' se a caixa estiver marcada
+        if is_checked:
+            st.markdown(f"<p class='task-text checked'>{task['text']}</p>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<p class='task-text'>{task['text']}</p>", unsafe_allow_html=True)
+
 # --- LAYOUT DA PÁGINA ---
 # --- Cabeçalho ---
 st.markdown('<h1 class="wedding-names">✨ Daniela & Thiago ✨</h1>', unsafe_allow_html=True)
@@ -215,7 +271,7 @@ st.markdown('<p class="wedding-date">❤️ Nosso caminho até 05 de Setembro de
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- Barra de Progresso ---
-total_tasks = len(st.session_state.tasks_status)
+total_tasks = len([task for phase in checklist_data.values() for task in phase if not task.get('is_note')])
 completed_tasks = sum(1 for status in st.session_state.tasks_status.values() if status)
 progress = completed_tasks / total_tasks if total_tasks > 0 else 0
 
@@ -224,7 +280,6 @@ st.markdown(f'<p class="progress-text">Progresso do Planejamento</p>', unsafe_al
 st.progress(progress)
 st.markdown(f"<p class='progress-subtext'>{completed_tasks} de {total_tasks} tarefas concluídas ({progress:.0%})</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
-
 
 # --- Contagem Regressiva ---
 st.markdown('<div class="countdown-section"><h2>Contagem Regressiva para o Grande Dia</h2></div>', unsafe_allow_html=True)
@@ -250,14 +305,7 @@ for phase, tasks in checklist_data.items():
     is_expanded = phase == default_expanded_phase_key
     with st.expander(f"🗓️ {phase}", expanded=is_expanded):
         for task in tasks:
-            if task.get('is_note'):
-                st.warning(task['text'])
-            else:
-                st.session_state.tasks_status[task['id']] = st.checkbox(
-                    task['text'],
-                    value=st.session_state.tasks_status.get(task['id'], False),
-                    key=task['id']
-                )
+            render_task(task) # Usa a nova função para renderizar cada tarefa
 
 # --- Rodapé ---
 st.markdown("""
@@ -266,7 +314,6 @@ st.markdown("""
     <p class="footer-subtext">Cada tarefa completada nos aproxima do nosso sonho realizado ❤️</p>
 </div>
 """, unsafe_allow_html=True)
-
 
 # --- Lógica da Contagem Regressiva (DEVE FICAR NO FINAL) ---
 st_autorefresh(interval=1000, key="countdownrefresh")
@@ -292,4 +339,3 @@ else:
             <div class="countdown-box"><span class="countdown-number">{seconds}</span><span class="countdown-label">Segundos</span></div>
         </div>
         """, unsafe_allow_html=True)
-
