@@ -268,14 +268,27 @@ const interval = setInterval(function() {{
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    document.getElementById("days").innerText = days;
-    document.getElementById("hours").innerText = hours;
-    document.getElementById("minutes").innerText = minutes;
-    document.getElementById("seconds").innerText = seconds;
+    // Adiciona um zero à esquerda se for menor que 10
+    const format = (num) => num < 10 ? '0' + num : num;
+
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+
+    if(daysEl && hoursEl && minutesEl && secondsEl) {{
+        daysEl.innerText = days;
+        hoursEl.innerText = format(hours);
+        minutesEl.innerText = format(minutes);
+        secondsEl.innerText = format(seconds);
+    }}
 
     if (distance < 0) {{
         clearInterval(interval);
-        document.querySelector(".countdown-container-js").innerHTML = '<span style="font-size: 1.5rem; font-weight: bold; color: #d81b60;">Feliz Casamento!</span>';
+        const container = document.querySelector(".countdown-container-js");
+        if(container) {{
+            container.innerHTML = '<span style="font-size: 1.5rem; font-weight: bold; color: #d81b60;">Feliz Casamento!</span>';
+        }}
     }}
 }}, 1000);
 </script>
