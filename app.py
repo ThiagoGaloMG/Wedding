@@ -298,14 +298,18 @@ body { background-color: #fff9fb; }
 def init_supabase():
     """Inicializa a conexão com o Supabase"""
     try:
-        # Tenta primeiro a configuração nova (direta)
-        if "supabase_url" in st.secrets and "supabase_key" in st.secrets:
-            url = st.secrets["supabase_url"]
-            key = st.secrets["supabase_key"]
+        # Tenta primeiro a configuração com [supabase]
+        if "supabase" in st.secrets and "supabase_url" in st.secrets.supabase:
+            url = st.secrets.supabase["supabase_url"]
+            key = st.secrets.supabase["supabase_key"]
         # Depois tenta a configuração com [general]
         elif "general" in st.secrets and "supabase_url" in st.secrets.general:
             url = st.secrets.general["supabase_url"]
             key = st.secrets.general["supabase_key"]
+        # Por último, tenta a configuração direta
+        elif "supabase_url" in st.secrets and "supabase_key" in st.secrets:
+            url = st.secrets["supabase_url"]
+            key = st.secrets["supabase_key"]
             supabase_client = create_client(url, key)
             
             # Testa a conexão
