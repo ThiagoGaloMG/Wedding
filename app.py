@@ -926,7 +926,7 @@ elif percentage_complete >= 50:
 elif percentage_complete >= 25:
     st.info("🌟 **MARCO ESPECIAL**: Um quarto do planejamento concluído! Continuem assim!")
 else:
-    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!"
+    st.info("💕 **INÍCIO DA JORNADA**: Cada grande amor começa com um primeiro passo!")
 
 # Dias especiais até o casamento
 if days_until_wedding > 365:
