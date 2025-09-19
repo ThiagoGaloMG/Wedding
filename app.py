@@ -695,71 +695,112 @@ st.progress(progress)
 st.markdown(f"<p class='progress-subtext'>{completed_tasks} de {total_tasks} tarefas concluídas ({progress:.0%})</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Contagem Regressiva Romântica ---
-st.markdown("""
-<div class="countdown-section">
-    <h2 class="countdown-title">Contagem Regressiva para o Grande Dia</h2>
-    <p class="countdown-subtitle">Cada segundo nos aproxima do nosso "Sim" eterno</p>
-    <div id="countdown-container"></div>
-    <div class="countdown-hearts">💕 ✨ 💕 ✨ 💕</div>
-</div>
-""", unsafe_allow_html=True)
+# --- Contagem Regressiva Romântica (VERSÃO CORRIGIDA) ---
 
+# A data do casamento definida em Python
 wedding_date = datetime.datetime(2026, 9, 5, 16, 0, 0)
 
+# O HTML da estrutura e o SCRIPT da contagem são combinados aqui
 countdown_html = f"""
-<script>
-function updateCountdown() {{
-    const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
-    const now = new Date().getTime();
-    const distance = countdownDate - now;
-    
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    const container = document.getElementById("countdown-container");
-    
-    if (distance > 0) {{
-        container.innerHTML = `
-            <div class="countdown-container-modern">
-                <div class="countdown-item">
-                    <span class="countdown-number">${{days}}</span>
-                    <span class="countdown-label">Dias</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="countdown-number">${{hours.toString().padStart(2, '0')}}</span>
-                    <span class="countdown-label">Horas</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="countdown-number">${{minutes.toString().padStart(2, '0')}}</span>
-                    <span class="countdown-label">Minutos</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="countdown-number">${{seconds.toString().padStart(2, '0')}}</span>
-                    <span class="countdown-label">Segundos</span>
-                </div>
-            </div>
-        `;
-    }} else {{
-        container.innerHTML = `
-            <div class="countdown-celebration">
-                🎉 Feliz Casamento! 🎉
-                <br>
-                <span style="font-size: 2rem;">Vocês conseguiram! 💕</span>
-            </div>
-        `;
-    }}
-}}
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos específicos para a contagem regressiva. Eles são os mesmos que você já tem no topo do seu CSS. */
+        .countdown-section {{ 
+            text-align: center; 
+            margin: 3rem 0; 
+            background: linear-gradient(135deg, #fff0f3 0%, #ffe0e6 50%, #fff5f8 100%);
+            padding: 2.5rem; border-radius: 25px;
+            box-shadow: 0 8px 32px rgba(194, 24, 91, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative; overflow: hidden;
+        }}
+        .countdown-title {{
+            font-family: 'Dancing Script', cursive; font-size: 2.8rem; font-weight: 700;
+            color: #c2185b; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }}
+        .countdown-subtitle {{
+            font-family: 'Montserrat', sans-serif; font-size: 1rem; color: #666; margin-bottom: 2rem;
+        }}
+        .countdown-container-modern {{
+            display: flex; justify-content: center; gap: 1.5rem; text-align: center; flex-wrap: wrap;
+        }}
+        .countdown-item {{
+            background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+            padding: 1.5rem 1rem; border-radius: 20px; min-width: 100px;
+            box-shadow: 0 8px 25px rgba(194, 24, 91, 0.15);
+        }}
+        .countdown-number {{
+            font-family: 'Montserrat', sans-serif; font-size: 2.5rem; font-weight: 700;
+            color: #c2185b; display: block; line-height: 1; margin-bottom: 0.5rem;
+        }}
+        .countdown-label {{
+            font-family: 'Montserrat', sans-serif; font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 1px; color: #666; font-weight: 500;
+        }}
+        .countdown-hearts {{
+            margin-top: 1.5rem; font-size: 1.5rem;
+        }}
+        .countdown-celebration {{
+            font-family: 'Dancing Script', cursive; font-size: 3rem; font-weight: 700; color: #c2185b;
+        }}
+    </style>
+</head>
+<body>
+    <div class="countdown-section">
+        <h2 class="countdown-title">Contagem Regressiva para o Grande Dia</h2>
+        <p class="countdown-subtitle">Cada segundo nos aproxima do nosso "Sim" eterno</p>
+        <div id="countdown-container"></div>
+        <div class="countdown-hearts">💕 ✨ 💕 ✨ 💕</div>
+    </div>
 
-// Atualiza imediatamente e depois a cada segundo
-updateCountdown();
-setInterval(updateCountdown, 1000);
-</script>
+    <script>
+        function updateCountdown() {{
+            const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
+            const now = new Date().getTime();
+            const distance = countdownDate - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            const container = document.getElementById("countdown-container");
+            
+            if (distance > 0) {{
+                container.innerHTML = `
+                    <div class="countdown-container-modern">
+                        <div class="countdown-item">
+                            <span class="countdown-number">${{days}}</span>
+                            <span class="countdown-label">Dias</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number">${{hours.toString().padStart(2, '0')}}</span>
+                            <span class="countdown-label">Horas</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number">${{minutes.toString().padStart(2, '0')}}</span>
+                            <span class="countdown-label">Minutos</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number">${{seconds.toString().padStart(2, '0')}}</span>
+                            <span class="countdown-label">Segundos</span>
+                        </div>
+                    </div>
+                `;
+            }} else {{
+                container.innerHTML = `<div class="countdown-celebration">🎉 Feliz Casamento! 🎉</div>`;
+            }}
+        }}
+        // Roda a função uma vez imediatamente e depois a cada segundo
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
 """
 
-components.html(countdown_html, height=200)
+# Executa o componente HTML com o script e a estrutura juntos
+components.html(countdown_html, height=270)
 
 # --- Layout do Checklist ---
 st.subheader("📋 Nosso Checklist Detalhado")
