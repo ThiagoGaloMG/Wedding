@@ -541,6 +541,18 @@ def add_task(phase, text):
     st.session_state.checklist[phase].append(new_task)
     
     if save_checklist_to_supabase(st.session_state.checklist):
+        show_sync_status("success", "Tarefa adicionada!")
+    else:
+        show_sync_status("error", "Falha ao salvar")
+
+def delete_task(phase, task_id):
+    """Remove uma tarefa"""
+    st.session_state.checklist[phase] = [
+        t for t in st.session_state.checklist[phase] 
+        if t['id'] != task_id
+    ]
+    
+    if save_checklist_to_supabase(st.session_state.checklist):
         show_sync_status("success", "Tarefa removida!")
     else:
         show_sync_status("error", "Falha ao salvar")
@@ -1022,19 +1034,4 @@ st.markdown("""
         💾 Dados salvos automaticamente • 🔄 Sincronização em tempo real
     </p>
 </div>
-""", unsafe_allow_html=True)(st.session_state.checklist):
-        show_sync_status("success", "Tarefa adicionada!")
-    else:
-        show_sync_status("error", "Falha ao salvar")
-
-def delete_task(phase, task_id):
-    """Remove uma tarefa"""
-    st.session_state.checklist[phase] = [
-        t for t in st.session_state.checklist[phase] 
-        if t['id'] != task_id
-    ]
-    
-    if save_checklist_to_supabase(st.session_state.checklist):
-        show_sync_status("success", "Tarefa removida!")
-    else:
-        show_sync_status("error", "Falha ao salvar")
+""", unsafe_allow_html=True)
