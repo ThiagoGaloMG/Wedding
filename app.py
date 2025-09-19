@@ -5,6 +5,7 @@ import streamlit.components.v1 as components
 import json
 from supabase import create_client, Client
 import time
+from collections import OrderedDict
 
 # --- Configuração da Página ---
 st.set_page_config(
@@ -287,8 +288,9 @@ body { background-color: #fff9fb; }
 
 @media (max-width: 640px) {
     .wedding-names { font-size: 3.5rem; }
-    .countdown-box-js { width: 65px; padding: 0.5rem; }
-    .countdown-number-js { font-size: 1.5rem; }
+    .countdown-item { min-width: 80px; padding: 1rem 0.5rem; }
+    .countdown-number { font-size: 2rem; }
+    .countdown-container-modern { gap: 1rem; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -348,9 +350,9 @@ else:
 
 CHECKLIST_ID = "daniela_thiago_2026"
 
-# --- DADOS INICIAIS DO CHECKLIST ---
-initial_checklist_data = {
-    "Fase 1: Planejamento Inicial (até Dez/25)": [
+# --- DADOS INICIAIS DO CHECKLIST (ORDENADOS CORRETAMENTE) ---
+initial_checklist_data = OrderedDict([
+    ("Fase 1: Planejamento Inicial (até Dez/25)", [
         {'id': 'definir-orcamento', 'text': 'Definir o Orçamento Geral do Casamento.', 'checked': False},
         {'id': 'lista-convidados-preliminar', 'text': 'Criar a Lista Preliminar de Convidados.', 'checked': False},
         {'id': 'escolher-padrinhos', 'text': 'Convidar Padrinhos e Madrinhas (máx. 3 casais por noivo).', 'checked': False},
@@ -358,8 +360,8 @@ initial_checklist_data = {
         {'id': 'agendar-curso-noivos', 'text': 'Pesquisar e se inscrever no Curso de Noivos.', 'checked': False},
         {'id': 'confirmar-salao', 'text': 'Confirmar a reserva do salão anexo da igreja para a recepção.', 'checked': False},
         {'id': 'design-convites', 'text': 'Definir o design dos convites.', 'checked': False},
-    ],
-    "Fase 2: Contratando Fornecedores (Jan/26 a Mar/26)": [
+    ]),
+    ("Fase 2: Contratando Fornecedores (Jan/26 a Mar/26)", [
         {'id': 'contato-paroquia', 'text': 'Contato Inicial com a Paróquia: Agendar data religiosa (05/09/2026).', 'checked': False},
         {'id': 'foto-video', 'text': 'Conversar e fechar com a amiga fotógrafa (repassar regras).', 'checked': False},
         {'id': 'musica-cerimonia', 'text': 'Conversar e fechar com os amigos músicos (repertório religioso).', 'checked': False},
@@ -369,8 +371,8 @@ initial_checklist_data = {
         {'id': 'pesquisar-vestido-noiva', 'text': 'Vestido da Noiva: Iniciar pesquisa e provas.', 'checked': False},
         {'id': 'pesquisar-traje-noivo', 'text': 'Traje do Noivo: Iniciar pesquisa.', 'checked': False},
         {'id': 'pesquisar-dia-noiva', 'text': 'Pesquisar profissional para o Dia da Noiva em casa.', 'checked': False},
-    ],
-    "Fase 3: Detalhes e Documentos (Abr/26 a Mai/26)": [
+    ]),
+    ("Fase 3: Detalhes e Documentos (Abr/26 a Mai/26)", [
         {'id': 'contratar-vestido-noiva', 'text': 'Contratar/Comprar o Vestido da Noiva.', 'checked': False},
         {'id': 'contratar-traje-noivo', 'text': 'Contratar/Comprar o Traje do Noivo.', 'checked': False},
         {'id': 'contratar-dia-noiva-profissional', 'text': 'Contratar profissional para o Dia da Noiva.', 'checked': False},
@@ -381,23 +383,23 @@ initial_checklist_data = {
         {'id': 'material-tercos-proprios', 'text': 'Comprar material para a produção dos terços.', 'checked': False},
         {'id': 'batismo-thiago', 'text': '🗓️ PRAZO: A partir de 05/03/26 - Thiago: Solicitar Certidão de Batismo para fins matrimoniais.', 'checked': False},
         {'id': 'batismo-daniela', 'text': '🗓️ PRAZO: A partir de 05/08/26 - Daniela: Solicitar Certidão de Batismo.', 'checked': False},
-    ],
-    "Fase 4: Processos Oficiais (Jun/26 a Jul/26)": [
+    ]),
+    ("Fase 4: Processos Oficiais (Jun/26 a Jul/26)", [
         {'id': 'solicitar-docs-daniela', 'text': '🗓️ PRAZO: A partir de 04/06/2026 - Daniela: Solicitar certidões de Casamento Anterior, Óbito e Inventário (valem 90 dias).', 'checked': False},
         {'id': 'solicitar-docs-thiago', 'text': '🗓️ PRAZO: A partir de 04/06/2026 - Thiago: Solicitar certidão de Nascimento (vale 90 dias).', 'checked': False},
         {'id': 'marcar-entrevista-padre', 'text': '🗓️ PRAZO: Até 27/06/26 - Marcar Entrevista com o Padre e iniciar o processo na Paróquia.', 'checked': False},
         {'id': 'entregar-docs-paroquia', 'text': 'Entregar documentos do processo religioso na paróquia.', 'checked': False},
         {'id': 'habilitacao-cartorio', 'text': '🗓️ PRAZO: Início de Julho - Dar Entrada na Habilitação do Casamento Civil com as testemunhas.', 'checked': False},
         {'id': 'imprimir-enviar-convites', 'text': 'Imprimir e começar a enviar/entregar os convites.', 'checked': False},
-    ],
-    "Fase 5: Reta Final (Agosto/2026)": [
+    ]),
+    ("Fase 5: Reta Final (Agosto/2026)", [
         {'id': 'confirmar-presenca-rsvp', 'text': '🗓️ PRAZO: Até 22/08/26 - Confirmar Presença (RSVP).', 'checked': False},
         {'id': 'reuniao-final-fornecedores', 'text': 'Reunião Final com todos os fornecedores.', 'checked': False},
         {'id': 'prova-final-trajes', 'text': 'Prova Final do Vestido e Terno.', 'checked': False},
         {'id': 'definir-leituras-musicas', 'text': 'Definir com o Padre as leituras e músicas.', 'checked': False},
         {'id': 'prova-cabelo-maquiagem', 'text': 'Fazer teste final de cabelo e maquiagem.', 'checked': False},
-    ],
-    "Na Semana do Casamento": [
+    ]),
+    ("Na Semana do Casamento", [
         {'id': 'casamento-civil', 'text': '❤️ GRANDE PASSO: 03/09/2026 - Casamento Civil no Cartório!', 'checked': False},
         {'id': 'entregar-certidao-civil', 'text': '⚠️ URGENTE: 03/09/2026 - Entregar a Xerox da Certidão Civil na Paróquia!', 'is_note': True},
         {'id': 'buscar-trajes', 'text': 'Buscar o Vestido e o Terno.', 'checked': False},
@@ -405,8 +407,18 @@ initial_checklist_data = {
         {'id': 'finalizar-tercos', 'text': 'Finalizar a produção e embalagem dos terços.', 'checked': False},
         {'id': 'organizar-malas-lua-de-mel', 'text': 'Organizar as Malas da Lua de Mel.', 'checked': False},
         {'id': 'relaxar', 'text': 'Descansar e relaxar! Delegar as últimas tarefas.', 'checked': False},
-    ],
-}
+    ]),
+    ("O Grande Dia do Casamento", [
+        {'id': 'cerimonia-religiosa', 'text': '💒 05/09/2026 - 16h - Cerimônia Religiosa na Igreja!', 'checked': False},
+        {'id': 'recepcao-festa', 'text': '🎉 Recepção e Festa no salão anexo!', 'checked': False},
+        {'id': 'entregar-tercos-convidados', 'text': '🙏 Entregar os terços de Nossa Senhora das Lágrimas aos convidados.', 'checked': False},
+        {'id': 'fotos-especiais', 'text': '📸 Sessão de fotos especiais com os noivos.', 'checked': False},
+        {'id': 'corte-bolo', 'text': '🎂 Cerimônia do corte do bolo.', 'checked': False},
+        {'id': 'primeira-danca', 'text': '💃🕺 Primeira dança como casal.', 'checked': False},
+        {'id': 'despedida-convidados', 'text': '👋 Despedida dos convidados com gratidão.', 'checked': False},
+        {'id': 'inicio-lua-de-mel', 'text': '✈️ Partida para a Lua de Mel!', 'checked': False},
+    ])
+])
 
 # --- FUNÇÕES DE MANIPULAÇÃO DO CHECKLIST COM SUPABASE ---
 def get_checklist_from_supabase():
@@ -418,7 +430,30 @@ def get_checklist_from_supabase():
         response = supabase.table("checklists").select("data, updated_at").eq("id", CHECKLIST_ID).execute()
         
         if response.data:
-            return response.data[0]["data"]
+            data = response.data[0]["data"]
+            # Converte para OrderedDict para manter a ordem
+            if isinstance(data, dict) and not isinstance(data, OrderedDict):
+                ordered_data = OrderedDict()
+                # Define a ordem das fases
+                phase_order = [
+                    "Fase 1: Planejamento Inicial (até Dez/25)",
+                    "Fase 2: Contratando Fornecedores (Jan/26 a Mar/26)",
+                    "Fase 3: Detalhes e Documentos (Abr/26 a Mai/26)",
+                    "Fase 4: Processos Oficiais (Jun/26 a Jul/26)",
+                    "Fase 5: Reta Final (Agosto/2026)",
+                    "Na Semana do Casamento",
+                    "O Grande Dia do Casamento"
+                ]
+                # Adiciona as fases na ordem correta
+                for phase in phase_order:
+                    if phase in data:
+                        ordered_data[phase] = data[phase]
+                # Adiciona qualquer fase extra que não esteja na lista
+                for phase, tasks in data.items():
+                    if phase not in ordered_data:
+                        ordered_data[phase] = tasks
+                return ordered_data
+            return data
         else:
             # Se não encontrar, cria o registro inicial
             save_checklist_to_supabase(initial_checklist_data)
@@ -434,8 +469,9 @@ def save_checklist_to_supabase(data):
         return False
         
     try:
-        # Limpa os dados para evitar problemas de serialização
-        clean_data = json.loads(json.dumps(data))
+        # Converte OrderedDict para dict normal para serialização JSON
+        clean_data = dict(data) if isinstance(data, OrderedDict) else data
+        clean_data = json.loads(json.dumps(clean_data))
         
         # Adiciona timestamp para controle de versão
         timestamp = datetime.datetime.now().isoformat()
@@ -503,18 +539,6 @@ def add_task(phase, text):
         'checked': False
     }
     st.session_state.checklist[phase].append(new_task)
-    
-    if save_checklist_to_supabase(st.session_state.checklist):
-        show_sync_status("success", "Tarefa adicionada!")
-    else:
-        show_sync_status("error", "Falha ao salvar")
-
-def delete_task(phase, task_id):
-    """Remove uma tarefa"""
-    st.session_state.checklist[phase] = [
-        t for t in st.session_state.checklist[phase] 
-        if t['id'] != task_id
-    ]
     
     if save_checklist_to_supabase(st.session_state.checklist):
         show_sync_status("success", "Tarefa removida!")
@@ -629,9 +653,12 @@ function createFloatingHeart() {
     }, 12000);
 }
 
+// Cria corações a cada 4 segundos
 setInterval(createFloatingHeart, 4000);
-for(let i = 0; i < 2; i++) {
-    setTimeout(createFloatingHeart, i * 2000);
+
+// Cria alguns corações iniciais
+for(let i = 0; i < 3; i++) {
+    setTimeout(createFloatingHeart, i * 1500);
 }
 </script>
 """
@@ -695,112 +722,63 @@ st.progress(progress)
 st.markdown(f"<p class='progress-subtext'>{completed_tasks} de {total_tasks} tarefas concluídas ({progress:.0%})</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Contagem Regressiva Romântica (VERSÃO CORRIGIDA) ---
-
-# A data do casamento definida em Python
+# --- CONTAGEM REGRESSIVA CORRIGIDA ---
 wedding_date = datetime.datetime(2026, 9, 5, 16, 0, 0)
+now = datetime.datetime.now()
+time_remaining = wedding_date - now
 
-# O HTML da estrutura e o SCRIPT da contagem são combinados aqui
-countdown_html = f"""
-<head>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        /* Estilos específicos para a contagem regressiva. Eles são os mesmos que você já tem no topo do seu CSS. */
-        .countdown-section {{ 
-            text-align: center; 
-            margin: 3rem 0; 
-            background: linear-gradient(135deg, #fff0f3 0%, #ffe0e6 50%, #fff5f8 100%);
-            padding: 2.5rem; border-radius: 25px;
-            box-shadow: 0 8px 32px rgba(194, 24, 91, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            position: relative; overflow: hidden;
-        }}
-        .countdown-title {{
-            font-family: 'Dancing Script', cursive; font-size: 2.8rem; font-weight: 700;
-            color: #c2185b; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }}
-        .countdown-subtitle {{
-            font-family: 'Montserrat', sans-serif; font-size: 1rem; color: #666; margin-bottom: 2rem;
-        }}
-        .countdown-container-modern {{
-            display: flex; justify-content: center; gap: 1.5rem; text-align: center; flex-wrap: wrap;
-        }}
-        .countdown-item {{
-            background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
-            padding: 1.5rem 1rem; border-radius: 20px; min-width: 100px;
-            box-shadow: 0 8px 25px rgba(194, 24, 91, 0.15);
-        }}
-        .countdown-number {{
-            font-family: 'Montserrat', sans-serif; font-size: 2.5rem; font-weight: 700;
-            color: #c2185b; display: block; line-height: 1; margin-bottom: 0.5rem;
-        }}
-        .countdown-label {{
-            font-family: 'Montserrat', sans-serif; font-size: 0.85rem; text-transform: uppercase;
-            letter-spacing: 1px; color: #666; font-weight: 500;
-        }}
-        .countdown-hearts {{
-            margin-top: 1.5rem; font-size: 1.5rem;
-        }}
-        .countdown-celebration {{
-            font-family: 'Dancing Script', cursive; font-size: 3rem; font-weight: 700; color: #c2185b;
-        }}
-    </style>
-</head>
-<body>
-    <div class="countdown-section">
-        <h2 class="countdown-title">Contagem Regressiva para o Grande Dia</h2>
-        <p class="countdown-subtitle">Cada segundo nos aproxima do nosso "Sim" eterno</p>
-        <div id="countdown-container"></div>
-        <div class="countdown-hearts">💕 ✨ 💕 ✨ 💕</div>
-    </div>
+# Cria a contagem regressiva usando Streamlit nativo ao invés de HTML/JS problemático
+st.markdown('<div class="countdown-section">', unsafe_allow_html=True)
+st.markdown('<h2 class="countdown-title">Contagem Regressiva para o Grande Dia</h2>', unsafe_allow_html=True)
+st.markdown('<p class="countdown-subtitle">Cada segundo nos aproxima do nosso "Sim" eterno</p>', unsafe_allow_html=True)
 
-    <script>
-        function updateCountdown() {{
-            const countdownDate = new Date("{wedding_date.isoformat()}").getTime();
-            const now = new Date().getTime();
-            const distance = countdownDate - now;
-            
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            const container = document.getElementById("countdown-container");
-            
-            if (distance > 0) {{
-                container.innerHTML = `
-                    <div class="countdown-container-modern">
-                        <div class="countdown-item">
-                            <span class="countdown-number">${{days}}</span>
-                            <span class="countdown-label">Dias</span>
-                        </div>
-                        <div class="countdown-item">
-                            <span class="countdown-number">${{hours.toString().padStart(2, '0')}}</span>
-                            <span class="countdown-label">Horas</span>
-                        </div>
-                        <div class="countdown-item">
-                            <span class="countdown-number">${{minutes.toString().padStart(2, '0')}}</span>
-                            <span class="countdown-label">Minutos</span>
-                        </div>
-                        <div class="countdown-item">
-                            <span class="countdown-number">${{seconds.toString().padStart(2, '0')}}</span>
-                            <span class="countdown-label">Segundos</span>
-                        </div>
-                    </div>
-                `;
-            }} else {{
-                container.innerHTML = `<div class="countdown-celebration">🎉 Feliz Casamento! 🎉</div>`;
-            }}
-        }}
-        // Roda a função uma vez imediatamente e depois a cada segundo
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    </script>
-</body>
-"""
+if time_remaining.total_seconds() > 0:
+    days = time_remaining.days
+    hours, remainder = divmod(time_remaining.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    
+    # Exibe a contagem usando colunas do Streamlit
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.markdown(f"""
+        <div class="countdown-item">
+            <span class="countdown-number">{days}</span>
+            <span class="countdown-label">Dias</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="countdown-item">
+            <span class="countdown-number">{hours:02d}</span>
+            <span class="countdown-label">Horas</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <div class="countdown-item">
+            <span class="countdown-number">{minutes:02d}</span>
+            <span class="countdown-label">Minutos</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class="countdown-item">
+            <span class="countdown-number">{seconds:02d}</span>
+            <span class="countdown-label">Segundos</span>
+        </div>
+        """, unsafe_allow_html=True)
+else:
+    st.markdown('<div class="countdown-celebration">🎉 Feliz Casamento! 🎉</div>', unsafe_allow_html=True)
 
-# Executa o componente HTML com o script e a estrutura juntos
-components.html(countdown_html, height=270)
+st.markdown('<div class="countdown-hearts">💕 ✨ 💕 ✨ 💕</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Auto-refresh da contagem a cada 30 segundos
+time.sleep(0.1)  # Pequeno delay para não sobrecarregar
 
 # --- Layout do Checklist ---
 st.subheader("📋 Nosso Checklist Detalhado")
@@ -1044,4 +1022,19 @@ st.markdown("""
         💾 Dados salvos automaticamente • 🔄 Sincronização em tempo real
     </p>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)(st.session_state.checklist):
+        show_sync_status("success", "Tarefa adicionada!")
+    else:
+        show_sync_status("error", "Falha ao salvar")
+
+def delete_task(phase, task_id):
+    """Remove uma tarefa"""
+    st.session_state.checklist[phase] = [
+        t for t in st.session_state.checklist[phase] 
+        if t['id'] != task_id
+    ]
+    
+    if save_checklist_to_supabase(st.session_state.checklist):
+        show_sync_status("success", "Tarefa removida!")
+    else:
+        show_sync_status("error", "Falha ao salvar")
