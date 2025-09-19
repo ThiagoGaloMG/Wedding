@@ -914,7 +914,6 @@ for phase, tasks in st.session_state.checklist.items():
                 if new_text.strip():
                     add_task(phase, new_text.strip())
                     # Limpa o campo
-                    st.session_state[f"new_task_{phase}"] = ""
                     st.rerun()
                 else:
                     st.error("Digite o texto da tarefa!")
