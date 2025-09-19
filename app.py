@@ -293,7 +293,7 @@ body { background-color: #fff9fb; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- CONFIGURAÇÃO DO SUPABASE (VERSÃO CORRIGIDA) ---
+# --- CONFIGURAÇÃO DO SUPABASE (VERSÃO CORRETA E COMPLETA) ---
 @st.cache_resource
 def init_supabase():
     """Inicializa a conexão com o Supabase de forma robusta"""
@@ -325,14 +325,6 @@ def init_supabase():
         # Se não encontrou as credenciais em nenhum formato
         st.error("⚠️ As credenciais do Supabase não foram encontradas nos segredos do Streamlit.")
         st.info("Verifique se o seu arquivo de secrets está configurado com [supabase] ou com as variáveis supabase_url e supabase_key.")
-        return None
-                
-        else:
-            st.error("⚠️ As credenciais do Supabase não foram encontradas nos segredos do Streamlit.")
-            st.info("Configure as variáveis SUPABASE_URL e SUPABASE_KEY nos secrets do Streamlit.")
-            return None
-    except Exception as e:
-        st.error(f"Falha ao conectar com o Supabase: {e}")
         return None
 
 def show_sync_status(status, message=""):
