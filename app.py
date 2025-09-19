@@ -293,32 +293,39 @@ body { background-color: #fff9fb; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- CONFIGURAÇÃO DO SUPABASE ---
+# --- CONFIGURAÇÃO DO SUPABASE (VERSÃO CORRIGIDA) ---
 @st.cache_resource
 def init_supabase():
-    """Inicializa a conexão com o Supabase"""
-    try:
-        # Tenta primeiro a configuração com [supabase]
-        if "supabase" in st.secrets and "supabase_url" in st.secrets.supabase:
-            url = st.secrets.supabase["supabase_url"]
-            key = st.secrets.supabase["supabase_key"]
-        # Depois tenta a configuração com [general]
-        elif "general" in st.secrets and "supabase_url" in st.secrets.general:
-            url = st.secrets.general["supabase_url"]
-            key = st.secrets.general["supabase_key"]
-        # Por último, tenta a configuração direta
-        elif "supabase_url" in st.secrets and "supabase_key" in st.secrets:
-            url = st.secrets["supabase_url"]
-            key = st.secrets["supabase_key"]
+    """Inicializa a conexão com o Supabase de forma robusta"""
+    url = None
+    key = None
+
+    # Tenta encontrar as credenciais em diferentes formatos
+    if "supabase" in st.secrets and "supabase_url" in st.secrets.supabase:
+        url = st.secrets.supabase["supabase_url"]
+        key = st.secrets.supabase["supabase_key"]
+    elif "general" in st.secrets and "supabase_url" in st.secrets.general:
+        url = st.secrets.general["supabase_url"]
+        key = st.secrets.general["supabase_key"]
+    elif "supabase_url" in st.secrets and "supabase_key" in st.secrets:
+        url = st.secrets["supabase_url"]
+        key = st.secrets["supabase_key"]
+
+    # Se encontrou as credenciais, tenta conectar
+    if url and key:
+        try:
             supabase_client = create_client(url, key)
-            
-            # Testa a conexão
-            try:
-                supabase_client.table("checklists").select("id").limit(1).execute()
-                return supabase_client
-            except Exception as e:
-                st.error(f"Erro ao testar conexão com Supabase: {e}")
-                return None
+            # Testa a conexão fazendo uma pequena consulta
+            supabase_client.table("checklists").select("id").limit(1).execute()
+            return supabase_client
+        except Exception as e:
+            st.error(f"❌ Falha ao conectar com o Supabase: Verifique a URL, a Chave e se a tabela 'checklists' existe. Erro: {e}")
+            return None
+    else:
+        # Se não encontrou as credenciais em nenhum formato
+        st.error("⚠️ As credenciais do Supabase não foram encontradas nos segredos do Streamlit.")
+        st.info("Verifique se o seu arquivo de secrets está configurado com [supabase] ou com as variáveis supabase_url e supabase_key.")
+        return None
                 
         else:
             st.error("⚠️ As credenciais do Supabase não foram encontradas nos segredos do Streamlit.")
