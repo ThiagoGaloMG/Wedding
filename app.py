@@ -15,127 +15,264 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# --- CSS Customizado ---
+# --- CSS Customizado Responsivo com Modo Escuro ---
 st.markdown("""
 <style>
 /* Importando as fontes do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;600&display=swap');
 
-/* --- ESTILOS GERAIS --- */
-body { background-color: #fff9fb; }
-.stApp {
-    background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/watercolor.png');
-    background-attachment: fixed;
-    background-size: cover;
-    font-family: 'Montserrat', sans-serif;
+/* --- VARIÁVEIS CSS PARA TEMA CLARO E ESCURO --- */
+:root {
+    --bg-primary: #fff9fb;
+    --bg-secondary: #ffffff;
+    --bg-gradient-start: #fff0f3;
+    --bg-gradient-middle: #ffe0e6;
+    --bg-gradient-end: #fff5f8;
+    --text-primary: #333333;
+    --text-secondary: #555555;
+    --text-muted: #666666;
+    --accent-color: #c2185b;
+    --accent-light: rgba(194, 24, 91, 0.1);
+    --border-color: rgba(194, 24, 91, 0.1);
+    --shadow-light: rgba(194, 24, 91, 0.15);
+    --shadow-medium: rgba(194, 24, 91, 0.25);
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --success-bg: #d4edda;
+    --success-text: #155724;
+    --warning-bg: #fff3cd;
+    --warning-text: #856404;
+    --error-bg: #f8d7da;
+    --error-text: #721c24;
+    --countdown-bg: linear-gradient(135deg, #fff0f3 0%, #ffe0e6 50%, #fff5f8 100%);
+    --romantic-quote-bg: linear-gradient(135deg, rgba(194, 24, 91, 0.05) 0%, rgba(255, 192, 203, 0.05) 100%);
 }
+
+/* Tema Escuro */
+[data-theme="dark"] {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-gradient-start: #2a1f23;
+    --bg-gradient-middle: #3d2a30;
+    --bg-gradient-end: #2a1f26;
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #b0b0b0;
+    --accent-color: #ff4081;
+    --accent-light: rgba(255, 64, 129, 0.2);
+    --border-color: rgba(255, 64, 129, 0.3);
+    --shadow-light: rgba(255, 64, 129, 0.3);
+    --shadow-medium: rgba(255, 64, 129, 0.4);
+    --card-bg: #333333;
+    --input-bg: #404040;
+    --success-bg: #1e4d2b;
+    --success-text: #90ee90;
+    --warning-bg: #4d3d1e;
+    --warning-text: #ffd700;
+    --error-bg: #4d1e1e;
+    --error-text: #ffb3b3;
+    --countdown-bg: linear-gradient(135deg, #2a1f23 0%, #3d2a30 50%, #2a1f26 100%);
+    --romantic-quote-bg: linear-gradient(135deg, rgba(255, 64, 129, 0.1) 0%, rgba(255, 105, 180, 0.1) 100%);
+}
+
+/* Auto detecção do modo escuro do sistema */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-gradient-start: #2a1f23;
+        --bg-gradient-middle: #3d2a30;
+        --bg-gradient-end: #2a1f26;
+        --text-primary: #ffffff;
+        --text-secondary: #e0e0e0;
+        --text-muted: #b0b0b0;
+        --accent-color: #ff4081;
+        --accent-light: rgba(255, 64, 129, 0.2);
+        --border-color: rgba(255, 64, 129, 0.3);
+        --shadow-light: rgba(255, 64, 129, 0.3);
+        --shadow-medium: rgba(255, 64, 129, 0.4);
+        --card-bg: #333333;
+        --input-bg: #404040;
+        --success-bg: #1e4d2b;
+        --success-text: #90ee90;
+        --warning-bg: #4d3d1e;
+        --warning-text: #ffd700;
+        --error-bg: #4d1e1e;
+        --error-text: #ffb3b3;
+        --countdown-bg: linear-gradient(135deg, #2a1f23 0%, #3d2a30 50%, #2a1f26 100%);
+        --romantic-quote-bg: linear-gradient(135deg, rgba(255, 64, 129, 0.1) 0%, rgba(255, 105, 180, 0.1) 100%);
+    }
+}
+
+/* --- ESTILOS GERAIS --- */
+body { 
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.stApp {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
 #MainMenu, footer { display: none; }
 
-/* --- CABEÇALHO --- */
+/* --- BOTÃO DE ALTERNÂNCIA DE TEMA --- */
+.theme-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+    background: var(--card-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow-light);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--shadow-medium);
+}
+
+/* --- CABEÇALHO RESPONSIVO --- */
 .wedding-names {
     font-family: 'Dancing Script', cursive;
-    font-size: 4.5rem; font-weight: 700; text-align: center; color: #c2185b; margin-bottom: -10px;
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-weight: 700;
+    text-align: center;
+    color: var(--accent-color);
+    margin-bottom: -10px;
+    transition: all 0.3s ease;
 }
+
 .wedding-date {
     font-family: 'Montserrat', sans-serif;
-    text-align: center; font-size: 1.1rem; color: #555; letter-spacing: 1px;
+    text-align: center;
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-bottom: 2rem;
 }
 
-/* --- PROGRESSO --- */
-.progress-section { text-align: center; margin-bottom: 2rem; }
-.progress-text { font-size: 1.2rem; font-weight: 600; color: #c2185b; }
-.progress-subtext { color: #666; }
+/* --- PROGRESSO RESPONSIVO --- */
+.progress-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
 
-/* --- STATUS DE SINCRONIZAÇÃO --- */
+.progress-text {
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.progress-subtext {
+    color: var(--text-muted);
+    font-size: clamp(0.8rem, 3vw, 1rem);
+}
+
+/* --- STATUS DE SINCRONIZAÇÃO RESPONSIVO --- */
 .sync-status {
     position: fixed;
     top: 10px;
     right: 10px;
     padding: 0.5rem;
     border-radius: 5px;
-    font-size: 0.8rem;
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
     z-index: 1000;
+    max-width: 200px;
+    word-wrap: break-word;
 }
-.sync-success { background-color: #d4edda; color: #155724; }
-.sync-error { background-color: #f8d7da; color: #721c24; }
-.sync-loading { background-color: #fff3cd; color: #856404; }
 
-/* --- CONTAGEM REGRESSIVA ROMÂNTICA --- */
-.countdown-section { 
-    text-align: center; 
-    margin: 3rem 0; 
-    background: linear-gradient(135deg, #fff0f3 0%, #ffe0e6 50%, #fff5f8 100%);
-    padding: 2.5rem;
+.sync-success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+}
+
+.sync-error {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+}
+
+.sync-loading {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+/* --- CONTAGEM REGRESSIVA RESPONSIVA --- */
+.countdown-section {
+    text-align: center;
+    margin: 2rem 0;
+    background: var(--countdown-bg);
+    padding: clamp(1.5rem, 5vw, 2.5rem);
     border-radius: 25px;
-    box-shadow: 0 8px 32px rgba(194, 24, 91, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px var(--shadow-light);
+    border: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
 }
 
-.countdown-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(194, 24, 91, 0.03) 0%, transparent 70%);
-    animation: rotate 20s linear infinite;
-}
-
-@keyframes rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 .countdown-title {
     font-family: 'Dancing Script', cursive;
-    font-size: 2.8rem;
+    font-size: clamp(2rem, 6vw, 2.8rem);
     font-weight: 700;
-    color: #c2185b;
+    color: var(--accent-color);
     margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     position: relative;
     z-index: 2;
 }
 
 .countdown-subtitle {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1rem;
-    color: #666;
+    font-size: clamp(0.8rem, 3vw, 1rem);
+    color: var(--text-muted);
     margin-bottom: 2rem;
     position: relative;
     z-index: 2;
 }
 
 .countdown-container-modern {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    text-align: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: clamp(0.5rem, 3vw, 1.5rem);
+    justify-items: center;
     position: relative;
     z-index: 2;
-    flex-wrap: wrap;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 .countdown-item {
-    background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
-    padding: 1.5rem 1rem;
+    background: var(--card-bg);
+    padding: clamp(1rem, 3vw, 1.5rem);
     border-radius: 20px;
-    min-width: 100px;
-    box-shadow: 
-        0 8px 25px rgba(194, 24, 91, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(194, 24, 91, 0.1);
+    min-width: 80px;
+    width: 100%;
+    max-width: 120px;
+    box-shadow: 0 8px 25px var(--shadow-light);
+    border: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
 }
 
 .countdown-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 35px rgba(194, 24, 91, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px var(--shadow-medium);
 }
 
 .countdown-item::before {
@@ -145,14 +282,14 @@ body { background-color: #fff9fb; }
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #e91e63, #ff4081, #c2185b);
+    background: linear-gradient(90deg, var(--accent-color), #ff4081, var(--accent-color));
 }
 
 .countdown-number {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
     font-weight: 700;
-    color: #c2185b;
+    color: var(--accent-color);
     display: block;
     line-height: 1;
     margin-bottom: 0.5rem;
@@ -161,16 +298,16 @@ body { background-color: #fff9fb; }
 
 .countdown-label {
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.85rem;
+    font-size: clamp(0.7rem, 2vw, 0.85rem);
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #666;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
 .countdown-hearts {
     margin-top: 1.5rem;
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
     opacity: 0.7;
     animation: heartbeat 2s ease-in-out infinite;
 }
@@ -180,120 +317,294 @@ body { background-color: #fff9fb; }
     50% { transform: scale(1.1); }
 }
 
-.countdown-celebration {
-    font-family: 'Dancing Script', cursive;
-    font-size: 3rem;
-    font-weight: 700;
-    color: #c2185b;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    animation: celebrate 2s ease-in-out infinite;
-}
-
-@keyframes celebrate {
-    0%, 100% { transform: scale(1) rotate(-2deg); }
-    50% { transform: scale(1.05) rotate(2deg); }
-}
-
-/* --- ELEMENTOS ROMÂNTICOS EXTRAS --- */
+/* --- CITAÇÃO ROMÂNTICA RESPONSIVA --- */
 .romantic-quote {
     text-align: center;
     margin: 2rem 0;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(194, 24, 91, 0.05) 0%, rgba(255, 192, 203, 0.05) 100%);
+    padding: clamp(1rem, 4vw, 1.5rem);
+    background: var(--romantic-quote-bg);
     border-radius: 15px;
-    border-left: 4px solid #c2185b;
+    border-left: 4px solid var(--accent-color);
 }
 
 .romantic-quote p {
     font-family: 'Dancing Script', cursive;
-    font-size: 1.8rem;
-    color: #c2185b;
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    color: var(--accent-color);
     font-style: italic;
     margin: 0;
 }
 
 .romantic-quote small {
     font-family: 'Montserrat', sans-serif;
-    color: #666;
-    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
 }
 
-.floating-hearts {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-    overflow: hidden;
-}
-
-.floating-heart {
-    position: absolute;
-    font-size: 1.5rem;
-    color: rgba(194, 24, 91, 0.1);
-    animation: float 15s infinite linear;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
-    }
-}
-
-.milestone-achievement {
-    background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
-    border: 2px solid #ffa726;
-    border-radius: 15px;
-    padding: 1rem;
-    margin: 1rem 0;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(255, 167, 38, 0.2);
-}
-
-/* --- CHECKLIST --- */
+/* --- CHECKLIST RESPONSIVO --- */
 .stExpander {
-    background-color: #ffffff; border: none !important; border-radius: 10px !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; margin-bottom: 1rem;
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 15px var(--shadow-light) !important;
+    margin-bottom: 1rem !important;
+    transition: all 0.3s ease !important;
 }
-.task-container { display: flex; align-items: center; justify-content: space-between; }
-.task-text { margin: 0; padding-left: 10px; font-size: 1rem; color: #333; transition: color 0.3s; }
-.task-text.checked { text-decoration: line-through; color: #aaa; }
-.stButton>button {
-    background-color: transparent; border: none; color: #aaa; padding: 0;
-    font-size: 0.9rem;
-}
-.stButton>button:hover { color: #c2185b; }
-.stAlert { background-color: #fffbe6 !important; border: 1px solid #ffe58f !important; border-radius: 10px !important; }
 
-/* --- RODAPÉ --- */
+.stExpander:hover {
+    box-shadow: 0 6px 20px var(--shadow-medium) !important;
+}
+
+.task-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.task-text {
+    margin: 0;
+    padding-left: 10px;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    flex: 1;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.task-text.checked {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* --- BOTÕES RESPONSIVOS --- */
+.stButton > button {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: clamp(0.7rem, 2vw, 0.9rem) !important;
+    transition: all 0.3s ease !important;
+    min-height: 38px !important;
+}
+
+.stButton > button:hover {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-light) !important;
+}
+
+/* --- INPUTS RESPONSIVOS --- */
+.stTextInput > div > div > input {
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    font-size: clamp(0.9rem, 3vw, 1rem) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px var(--accent-light) !important;
+}
+
+/* --- CHECKBOXES RESPONSIVOS --- */
+.stCheckbox > label {
+    color: var(--text-primary) !important;
+    font-size: clamp(0.9rem, 3vw, 1rem) !important;
+}
+
+/* --- ALERTAS RESPONSIVOS --- */
+.stAlert {
+    background-color: var(--warning-bg) !important;
+    color: var(--warning-text) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 10px !important;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem) !important;
+}
+
+.stSuccess {
+    background-color: var(--success-bg) !important;
+    color: var(--success-text) !important;
+}
+
+.stError {
+    background-color: var(--error-bg) !important;
+    color: var(--error-text) !important;
+}
+
+/* --- MÉTRICAS RESPONSIVAS --- */
+.metric-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+/* --- RODAPÉ RESPONSIVO --- */
 .footer {
-    text-align: center; padding: 2rem; background-color: #ffffff;
-    border-radius: 10px; margin-top: 2rem;
+    text-align: center;
+    padding: clamp(1rem, 4vw, 2rem);
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    margin-top: 2rem;
+    box-shadow: 0 4px 15px var(--shadow-light);
 }
-.footer-text { font-size: 1.5rem; font-weight: 600; color: #c2185b; }
-.footer-subtext { color: #555; }
 
-@media (max-width: 640px) {
-    .wedding-names { font-size: 3.5rem; }
-    .countdown-item { min-width: 80px; padding: 1rem 0.5rem; }
-    .countdown-number { font-size: 2rem; }
-    .countdown-container-modern { gap: 1rem; }
+.footer-text {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.footer-subtext {
+    color: var(--text-secondary);
+    font-size: clamp(0.9rem, 3vw, 1rem);
+}
+
+/* --- MEDIA QUERIES ESPECÍFICAS --- */
+@media (max-width: 768px) {
+    .stApp {
+        padding: 0.5rem;
+    }
+    
+    .countdown-container-modern {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .countdown-item {
+        padding: 1rem 0.5rem;
+    }
+    
+    .task-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .task-text {
+        padding-left: 0;
+        width: 100%;
+    }
+    
+    .sync-status {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+    
+    .theme-toggle {
+        position: relative;
+        top: auto;
+        left: auto;
+        margin: 1rem auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .countdown-container-modern {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .countdown-item {
+        min-width: 70px;
+        padding: 0.8rem 0.3rem;
+    }
+    
+    .countdown-number {
+        font-size: 1.8rem;
+    }
+    
+    .countdown-label {
+        font-size: 0.7rem;
+    }
+    
+    .metric-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+}
+
+/* --- ANIMAÇÕES SUAVES --- */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* --- SCROLLBAR PERSONALIZADA --- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff4081;
 }
 </style>
 """, unsafe_allow_html=True)
+
+# --- SCRIPT PARA ALTERNÂNCIA DE TEMA ---
+theme_toggle_script = """
+<script>
+function toggleTheme() {
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Atualiza o ícone
+    const toggle = document.querySelector('.theme-toggle');
+    if (toggle) {
+        toggle.innerHTML = newTheme === 'dark' ? '☀️' : '🌙';
+    }
+}
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    document.body.setAttribute('data-theme', theme);
+    
+    // Cria o botão de alternância
+    const toggle = document.createElement('div');
+    toggle.className = 'theme-toggle';
+    toggle.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+    toggle.onclick = toggleTheme;
+    toggle.title = 'Alternar tema claro/escuro';
+    
+    document.body.appendChild(toggle);
+}
+
+// Inicializa o tema quando a página carrega
+document.addEventListener('DOMContentLoaded', initTheme);
+
+// Para Streamlit, tenta inicializar após um pequeno delay
+setTimeout(initTheme, 500);
+</script>
+"""
+
+components.html(theme_toggle_script, height=0)
 
 # --- CONFIGURAÇÃO DO SUPABASE (VERSÃO CORRETA E COMPLETA) ---
 @st.cache_resource
@@ -1021,6 +1332,18 @@ st.info("""
 - **Xerox da Certidão Civil**: Entregar na paróquia no mesmo dia
 - **Backup**: Este checklist é salvo automaticamente na nuvem
 - **Sincronização**: As alterações aparecem para ambos em tempo real
+- **Modo Escuro**: Use o botão 🌙/☀️ no canto superior esquerdo para alternar temas
+""")
+
+# --- Instruções para Modo Mobile ---
+st.markdown("---")
+st.markdown("### 📱 **Dica para Celular**")
+st.info("""
+📱 **Para melhor experiência no celular:**
+- Use o botão **🌙** no canto superior esquerdo para ativar o **modo escuro**
+- O modo escuro melhora muito a legibilidade em telas pequenas
+- O tema se adapta automaticamente às configurações do seu telefone
+- Todas as funcionalidades funcionam perfeitamente no mobile
 """)
 
 # --- Rodapé ---
@@ -1029,8 +1352,8 @@ st.markdown("""
 <div class="footer">
     <p class="footer-text">Juntos para Sempre</p>
     <p class="footer-subtext">Cada tarefa completada nos aproxima do nosso sonho realizado ❤️</p>
-    <p style="font-size: 0.8rem; color: #999; margin-top: 1rem;">
-        💾 Dados salvos automaticamente • 🔄 Sincronização em tempo real
+    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem;">
+        💾 Dados salvos automaticamente • 🔄 Sincronização em tempo real • 🌙 Modo escuro disponível
     </p>
 </div>
 """, unsafe_allow_html=True)
